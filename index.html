@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Band-Setlist – Echtzeit mit Drag & Drop und BPM</title>
+  <title>Band-Setlist – Echtzeit mit Griff-Handle</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
@@ -38,27 +38,29 @@
     .green { color: #00ff00; }
     .red { color: #ff6666; }
     .song-title { font-weight: bold; font-size: 1.2rem; font-family: 'Patrick Hand', cursive; }
+    .drag-handle { cursor: grab; font-size: 1.5rem; }
     input.bpm-input { width: 60px; padding: 5px; font-size: 1rem; text-align: center; }
     thead th { font-size: 1.3rem; background-color: #3a5f39; }
-    tr.draggable { cursor: move; }
+    tr.draggable { cursor: default; }
     @media (max-width: 768px) { th, td { font-size: 0.9rem; padding: 6px; } h1 { font-size: 2rem; } }
   </style>
 </head>
 <body>
 
   <img src="FS_Logo Kopie.png" alt="Ferkel Sharky Logo" class="logo">
-  <h1>Setlist '25</h1>
+  <h1>Setlist</h1>
 
   <table id="setlistTable">
     <thead>
       <tr>
+        <th>≡</th>
         <th>#</th>
         <th>Songtitel</th>
         <th>🥁</th>
-<th>🎹</th>
-<th>🎸</th>
-<th>𝄢</th>  <!-- Bass-Schlüssel -->
-<th>🎤</th>
+        <th>🎹</th>
+        <th>🎸</th>
+        <th>𝄢</th>
+        <th>🎤</th>
         <th>BPM</th>
       </tr>
     </thead>
@@ -82,7 +84,7 @@
       row.classList.add('draggable');
       row.setAttribute('draggable', 'true');
       row.dataset.songId = song.id;
-      let html = `<td class="song-number">${index + 1}</td><td class="song-title">${song.title}</td>`;
+      let html = `<td class="drag-handle">≡</td><td class="song-number">${index + 1}</td><td class="song-title">${song.title}</td>`;
       columns.forEach(col => {
         const cellId = `${song.id}_${col.toLowerCase()}`;
         const statusClass = song.statuses && song.statuses[col.toLowerCase()] === 'green' ? 'green' : 'red';
@@ -171,6 +173,7 @@
 
     new Sortable(tableBody, {
       animation: 150,
+      handle: '.drag-handle',
       onEnd: () => {
         saveOrder();
         updateSongNumbers();
