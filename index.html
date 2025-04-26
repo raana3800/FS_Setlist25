@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Band-Setlist – Schultafel-Stil</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+    body {
+      background-color: #2e4d2c;
+      font-family: 'Patrick Hand', cursive;
+      color: #fff;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+    }
+
+    img.logo {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #fdfdfd;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: transparent;
+    }
+
+    th, td {
+      border: 1px solid #ffffff88;
+      padding: 10px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .status {
+      cursor: pointer;
+      font-size: 1.5em;
+    }
+
+    .green {
+      color: #00ff00;
+    }
+
+    .red {
+      color: #ff6666;
+    }
+
+    .song-title {
+      font-weight: bold;
+      font-size: 1.2rem;
+      font-family: 'Patrick Hand', cursive;
+    }
+
+    thead th {
+      font-size: 1.3rem;
+      background-color: #3a5f39;
+    }
+
+    tr.draggable {
+      cursor: move;
+    }
+
+    @media (max-width: 768px) {
+      th, td {
+        font-size: 0.9rem;
+        padding: 6px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="FS_Logo Kopie.png" alt="Ferkel Sharky Logo" class="logo">
+  <h1>Setlist</h1>
+
+  <table id="setlistTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Songtitel</th>
+        <th>Drums</th>
+        <th>Keyboards</th>
+        <th>Gitarre</th>
+        <th>Bass</th>
+        <th>Gesang</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <!-- Zeilen werden mit JavaScript erzeugt -->
+    </tbody>
+  </table>
+
+  <script>
+    const songs = [
+      "Don't Change", "Ready to Start", "Cities in Dust", "Hungry Like the Wolf",
+      "Safety Dance", "Early Morning Wake Up Call", "A Forest", "I Ran",
+      "Enola Gay", "You Spin Me Around", "You Keep Me Hanging On", "Touch Me"
+    ];
+
+    const columns = ["Drums", "Keyboards", "Gitarre", "Bass", "Gesang"];
+
+    function createRow(index, title) {
+      const row = document.createElement('tr');
+      row.classList.add('draggable');
+      row.setAttribute('draggable', 'true');
+
+      let html = `<td>${index + 1}</td><td class="song-title">${title}</td>`;
+      columns.forEach(col => {
+        const cellId = `s${index}_${col.toLowerCase()}`;
+        const saved = localStorage.getItem(cellId);
+        const statusClass = saved === 'green' ? 'green' : 'red';
+        const statusSymbol = saved === 'green' ? '✓' : '✗';
+        html += `<td id="${cellId}" class="status ${statusClass}">${statusSymbol}</td>`;
+      });
+      row.innerHTML = html;
+      return row;
+    }
+
+    const tableBody = document.getElementById('tableBody');
+    songs.forEach((title, index) => {
+      const row = createRow(index, title);
+      tableBody.appendChild(row);
+    });
+
+    // Click to toggle status and save
+    document.querySelectorAll('.status').forEach(cell => {
+      cell.addEventListener('click', () => {
+        if (cell.classList.contains('red')) {
+          cell.classList.remove('red');
+          cell.classList.add('green');
+          cell.textContent = '✓';
+          localStorage.setItem(cell.id, 'green');
+        } else {
+          cell.classList.remove('green');
+          cell.classList.add('red');
+          cell.textContent = '✗';
+          localStorage.setItem(cell.id, 'red');
+        }
+      });
+    });
+
+    // Drag & Drop
+    let dragSrcEl = null;
+
+    function handleDragStart(e) {
+      dragSrcEl = this;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      if (dragSrcEl !== this) {
+        dragSrcEl.innerHTML = this.innerHTML;
+        this.innerHTML = e.dataTransfer.getData('text/html');
+      }
+    }
+
+    const rows = document.querySelectorAll('#tableBody tr');
+    rows.forEach(row => {
+      row.addEventListener('dragstart', handleDragStart);
+      row.addEventListener('dragover', handleDragOver);
+      row.addEventListener('drop', handleDrop);
+    });
+  </script>
+</body>
+</html>
