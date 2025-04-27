@@ -83,7 +83,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+import { getDatabase, ref, set, update, get, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
 
 const firebaseConfig = {
@@ -173,11 +173,13 @@ function renderSongs(songs) {
 }
 
 const songsRef = ref(db, "songs");
-onValue(songsRef, snapshot => {
-  const songs = snapshot.val();
+
+onValue(songsRef, async (snapshot) => {
+  let songs = snapshot.val();
   if (!songs) {
-    initializeSongs();
-    return;
+    await initializeSongs();
+    const newSnapshot = await get(songsRef);
+    songs = newSnapshot.val();
   }
   renderSongs(songs);
 });
