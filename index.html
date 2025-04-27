@@ -67,7 +67,7 @@
     img.logo { max-width: 250px; margin-top: 5px; margin-bottom: 5px; }
     h1 { font-size: 2.5rem; margin-top: 5px; margin-bottom: 10px; color: #fdfdfd; text-shadow: 1px 1px 2px #000; }
     .banner { background-color: #4CAF50; color: white; padding: 10px; margin-bottom: 15px; border-radius: 5px; display: none; }
-    button, .add-song-btn { margin-top: 20px; padding: 10px 20px; font-size: 1rem; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 1rem; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: transparent; clear: both; }
     th, td { border: 1px solid #ffffff88; padding: 10px; text-align: center; font-size: 1rem; }
     .status { cursor: pointer; font-size: 1.5em; }
@@ -80,9 +80,7 @@
     input.bpm-input.highlight { background-color: #8bc34a; }
     thead th { font-size: 1.3rem; background-color: #3a5f39; }
     tr.draggable { cursor: default; }
-    .add-song-form { margin-top: 30px; display: flex; gap: 10px; justify-content: center; align-items: center; }
-    .add-song-form input { padding: 8px; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; }
-    @media (max-width: 768px) { th, td { font-size: 0.9rem; padding: 6px; } h1 { font-size: 2rem; } .add-song-form { flex-direction: column; } }
+    @media (max-width: 768px) { th, td { font-size: 0.9rem; padding: 6px; } h1 { font-size: 2rem; } }
   </style>
 </head>
 <body>
@@ -110,12 +108,6 @@
   </table>
 
   <button id="resetButton">Setlist zurücksetzen</button>
-
-  <div class="add-song-form">
-    <input type="text" id="newSongTitle" placeholder="Neuer Songtitel">
-    <input type="number" id="newSongBpm" placeholder="BPM" min="60" max="240">
-    <button class="add-song-btn" id="addSongButton">Song hinzufügen</button>
-  </div>
 
   <script type="module">
     document.addEventListener('DOMContentLoaded', () => {
