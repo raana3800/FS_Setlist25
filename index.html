@@ -52,6 +52,51 @@
       await set(orderRef, order);
     }
 
+    function renderSongs(songList) {
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+      songList.forEach((song, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="drag-handle">≡</td>
+          <td>${index + 1}</td>
+          <td class="song-title">${song.title}</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td><input type="number" class="bpm-input" value="${song.bpm}" min="60" max="240"></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      new Sortable(tableBody, { handle: '.drag-handle', animation: 150 });
+
+      document.querySelectorAll('.bpm-input').forEach(input => {
+        input.addEventListener('change', () => {
+          input.classList.add('highlight');
+          setTimeout(() => input.classList.remove('highlight'), 600);
+        });
+      });
+    }
+
+    function listenToDatabase() {
+      const songsRef = ref(db, 'songs');
+      const orderRef = ref(db, 'order');
+
+      onValue(orderRef, orderSnap => {
+        const order = orderSnap.val();
+        if (!order) return;
+        onValue(songsRef, songsSnap => {
+          const songs = songsSnap.val();
+          if (!songs) return;
+          const songList = order.map(id => ({ id, title: songs[id].title, bpm: songs[id].bpm }));
+          renderSongs(songList);
+        });
+      });
+    }
+
     window.db = db;
     window.dbRef = ref;
     window.dbSet = set;
@@ -59,6 +104,20 @@
     window.dbRemove = remove;
     window.dbOnValue = onValue;
     window.initializeSongs = initializeSongs;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('resetButton').addEventListener('click', async () => {
+        if (confirm('Willst du die Setlist wirklich komplett zurücksetzen?')) {
+          await window.dbRemove(window.dbRef(window.db, 'songs/'));
+          await window.dbRemove(window.dbRef(window.db, 'order/'));
+          await window.initializeSongs();
+          const banner = document.getElementById('successBanner');
+          banner.style.display = 'block';
+          setTimeout(() => { banner.style.display = 'none'; }, 2000);
+        }
+      });
+      listenToDatabase();
+    });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
@@ -108,21 +167,6 @@
   </table>
 
   <button id="resetButton">Setlist zurücksetzen</button>
-
-  <script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('resetButton').addEventListener('click', async () => {
-        if (confirm('Willst du die Setlist wirklich komplett zurücksetzen?')) {
-          await window.dbRemove(window.dbRef(window.db, 'songs/'));
-          await window.dbRemove(window.dbRef(window.db, 'order/'));
-          await window.initializeSongs();
-          const banner = document.getElementById('successBanner');
-          banner.style.display = 'block';
-          setTimeout(() => { banner.style.display = 'none'; location.reload(); }, 2000);
-        }
-      });
-    });
-  </script>
 
 </body>
 </html>
