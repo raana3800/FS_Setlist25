@@ -60,9 +60,11 @@
     }
     tbody tr {
       cursor: default;
-      transition: all 0.3s ease; /* ANIMATION hier */
+      transition: transform 0.2s ease, background-color 0.3s ease; /* ANIMATION */
     }
-
+    tr.dragging {
+      opacity: 0.5;
+    }
     /* Mobile Optimierung */
     @media (max-width: 768px) {
       body {
@@ -135,6 +137,9 @@ const db = getDatabase(app);
 const songsRef = ref(db, "songs");
 const tbody = document.querySelector('#setlist tbody');
 
+let draggedRow = null;
+let isTouch = false;
+
 onValue(songsRef, (snapshot) => {
   tbody.innerHTML = '';
   let songs = [];
@@ -165,6 +170,61 @@ onValue(songsRef, (snapshot) => {
   setDraggable();
 });
 
+function setDraggable() {
+  const rows = tbody.querySelectorAll('tr');
+
+  rows.forEach(row => {
+    row.addEventListener('dragstart', (e) => {
+      if (e.target.classList.contains('handle')) {
+        draggedRow = row;
+        row.classList.add('dragging');
+      } else {
+        e.preventDefault();
+      }
+    });
+
+    row.addEventListener('touchstart', (e) => {
+      if (e.target.classList.contains('handle')) {
+        isTouch = true;
+        draggedRow = row;
+        row.classList.add('dragging');
+      }
+    }, { passive: true });
+  });
+}
+
+tbody.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  const target = e.target.closest('tr');
+  if (target && target !== draggedRow) {
+    const rect = target.getBoundingClientRect();
+    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+    tbody.insertBefore(draggedRow, next && target.nextSibling || target);
+  }
+});
+
+tbody.addEventListener('touchmove', (e) => {
+  if (isTouch) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+tbody.addEventListener('drop', () => finishDrag());
+tbody.addEventListener('touchend', () => finishDrag());
+
+function finishDrag() {
+  if (draggedRow) {
+    draggedRow.classList.remove('dragging');
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const id = row.dataset.id;
+      update(ref(db, `songs/${id}`), { order: index });
+    });
+    draggedRow = null;
+    isTouch = false;
+  }
+}
+
 // Status toggeln
 tbody.addEventListener('click', (e) => {
   if (e.target.classList.contains('status')) {
@@ -193,69 +253,6 @@ tbody.addEventListener('change', (e) => {
       alert('BPM muss zwischen 60 und 240 liegen!');
       e.target.value = 120;
     }
-  }
-});
-
-// Drag & Drop für Desktop und Mobile
-let draggedRow = null;
-let touchStartRow = null;
-
-// Desktop: Drag via Griff
-tbody.addEventListener('dragstart', (e) => {
-  if (e.target.classList.contains('handle')) {
-    draggedRow = e.target.closest('tr');
-    e.target.closest('tr').style.opacity = "0.5";
-  } else {
-    e.preventDefault();
-  }
-});
-
-tbody.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  const targetRow = e.target.closest('tr');
-  if (targetRow && targetRow !== draggedRow) {
-    const rect = targetRow.getBoundingClientRect();
-    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-    tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
-  }
-});
-
-tbody.addEventListener('drop', () => {
-  const rows = tbody.querySelectorAll('tr');
-  rows.forEach((row, index) => {
-    const id = row.dataset.id;
-    update(ref(db, `songs/${id}`), { order: index });
-    row.style.opacity = "1";
-  });
-});
-
-// Mobile: Touch Drag
-tbody.addEventListener('touchstart', (e) => {
-  if (e.target.classList.contains('handle')) {
-    touchStartRow = e.target.closest('tr');
-    touchStartRow.style.opacity = "0.5";
-  }
-}, { passive: true });
-
-tbody.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-}, { passive: false });
-
-tbody.addEventListener('touchend', (e) => {
-  if (touchStartRow) {
-    const touch = e.changedTouches[0];
-    const element = document.elementFromPoint(touch.clientX, touch.clientY);
-    const targetRow = element.closest('tr');
-    if (targetRow && targetRow !== touchStartRow) {
-      tbody.insertBefore(touchStartRow, targetRow.nextSibling || targetRow);
-      const rows = tbody.querySelectorAll('tr');
-      rows.forEach((row, index) => {
-        const id = row.dataset.id;
-        update(ref(db, `songs/${id}`), { order: index });
-      });
-    }
-    touchStartRow.style.opacity = "1";
-    touchStartRow = null;
   }
 });
 </script>
