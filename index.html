@@ -1,152 +1,132 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Setlist Übersicht</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ccc;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .status {
-            cursor: pointer;
-            font-size: 24px;
-        }
-        tbody tr {
-            cursor: move;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Setlist Übersicht</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: center; border: 1px solid #ccc; }
+    th { background-color: #f4f4f4; }
+    .status { cursor: pointer; font-size: 24px; }
+    tbody tr { cursor: move; }
+  </style>
 </head>
 <body>
 
 <h1>Setlist</h1>
 
 <table id="setlist">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Song</th>
-            <th>BPM</th>
-            <th>Drums</th>
-            <th>Keyboard</th>
-            <th>Gitarre</th>
-            <th>Bass</th>
-            <th>Gesang</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Hier werden Songs geladen -->
-    </tbody>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Song</th>
+      <th>BPM</th>
+      <th>Drums</th>
+      <th>Keyboard</th>
+      <th>Gitarre</th>
+      <th>Bass</th>
+      <th>Gesang</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Songs werden hier automatisch geladen -->
+  </tbody>
 </table>
 
 <script type="module">
-   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
     authDomain: "fssetlist2025.firebaseapp.com",
     projectId: "fssetlist2025",
     storageBucket: "fssetlist2025.appspot.com",
     messagingSenderId: "489478918968",
     appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
-};
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const songsCollection = collection(db, "songs");
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const songsCollection = collection(db, "songs");
+  const tbody = document.querySelector('#setlist tbody');
 
-const tbody = document.querySelector('#setlist tbody');
-
-// Songs live laden
-onSnapshot(songsCollection, (snapshot) => {
+  onSnapshot(songsCollection, (snapshot) => {
     tbody.innerHTML = '';
     let songs = [];
-    snapshot.forEach(doc => {
-        songs.push({ id: doc.id, ...doc.data() });
+    snapshot.forEach(docSnap => {
+      songs.push({ id: docSnap.id, ...docSnap.data() });
     });
 
     songs.sort((a, b) => a.order - b.order);
 
     songs.forEach((song, index) => {
-        const row = document.createElement('tr');
-        row.setAttribute('draggable', 'true');
-        row.dataset.id = song.id;
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${song.title}</td>
-            <td>${song.bpm}</td>
-            <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
-        `;
-        tbody.appendChild(row);
+      const row = document.createElement('tr');
+      row.setAttribute('draggable', 'true');
+      row.dataset.id = song.id;
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${song.title}</td>
+        <td>${song.bpm}</td>
+        <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+      `;
+      tbody.appendChild(row);
     });
 
     setDraggable();
-});
+  });
 
-// Status toggeln
-tbody.addEventListener('click', async (e) => {
+  tbody.addEventListener('click', async (e) => {
     if (e.target.classList.contains('status')) {
-        const row = e.target.closest('tr');
-        const id = row.dataset.id;
-        const instrument = e.target.dataset.instrument;
-        const current = e.target.innerText === '✅';
+      const row = e.target.closest('tr');
+      const id = row.dataset.id;
+      const instrument = e.target.dataset.instrument;
+      const current = e.target.innerText === '✅';
 
-        await updateDoc(doc(db, "songs", id), {
-            [instrument]: !current
-        });
+      await updateDoc(doc(db, "songs", id), {
+        [instrument]: !current
+      });
     }
-});
+  });
 
-// Drag & Drop
-let draggedRow = null;
+  // Drag & Drop
+  let draggedRow = null;
 
-function setDraggable() {
+  function setDraggable() {
     const rows = tbody.querySelectorAll('tr');
     rows.forEach(row => {
-        row.setAttribute('draggable', 'true');
+      row.setAttribute('draggable', 'true');
     });
-}
+  }
 
-tbody.addEventListener('dragstart', (e) => {
+  tbody.addEventListener('dragstart', (e) => {
     if (e.target.tagName === 'TR') {
-        draggedRow = e.target;
+      draggedRow = e.target;
     }
-});
+  });
 
-tbody.addEventListener('dragover', (e) => {
+  tbody.addEventListener('dragover', (e) => {
     e.preventDefault();
     const targetRow = e.target.closest('tr');
     if (targetRow && targetRow !== draggedRow) {
-        const rect = targetRow.getBoundingClientRect();
-        const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-        tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+      const rect = targetRow.getBoundingClientRect();
+      const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+      tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
     }
-});
+  });
 
-tbody.addEventListener('drop', async () => {
+  tbody.addEventListener('drop', async () => {
     const rows = tbody.querySelectorAll('tr');
     rows.forEach(async (row, index) => {
-        const id = row.dataset.id;
-        await updateDoc(doc(db, "songs", id), { order: index });
+      const id = row.dataset.id;
+      await updateDoc(doc(db, "songs", id), { order: index });
     });
-});
+  });
 </script>
 
 </body>
