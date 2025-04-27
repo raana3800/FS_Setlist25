@@ -27,7 +27,7 @@
       border-collapse: collapse;
       background-color: #3b3b3b;
       margin-top: 20px;
-      min-width: 600px;
+      min-width: 700px;
     }
     th, td {
       padding: 12px;
@@ -43,19 +43,19 @@
       cursor: pointer;
       font-size: 24px;
     }
-    td.handle {
-      cursor: grab;
-      font-size: 24px;
-    }
-    tbody tr {
-      cursor: default;
+    td.song-title {
+      white-space: normal;
+      word-break: break-word;
+      text-align: left;
     }
     input.bpm-input {
       width: 60px;
       font-size: 1em;
       text-align: center;
     }
-
+    tbody tr {
+      cursor: move; /* Zeile wieder komplett greifbar */
+    }
     /* Mobile Optimierung */
     @media (max-width: 768px) {
       body {
@@ -92,14 +92,14 @@
   <table id="setlist">
     <thead>
       <tr>
-        <th>≡</th> <!-- Drag Handle -->
+        <th>#</th> <!-- Songnummer -->
         <th>Song</th>
         <th>BPM</th>
-        <th>🥁</th> <!-- Drums -->
-        <th>🎹</th> <!-- Keyboard -->
-        <th>🎸</th> <!-- Gitarre -->
-        <th>𝄢</th> <!-- Bass -->
-        <th>🎤</th> <!-- Gesang -->
+        <th>🥁</th>
+        <th>🎹</th>
+        <th>🎸</th>
+        <th>𝄢</th>
+        <th>🎤</th>
       </tr>
     </thead>
     <tbody>
@@ -143,8 +143,8 @@
       row.setAttribute('draggable', 'true');
       row.dataset.id = song.id;
       row.innerHTML = `
-        <td class="handle">≡</td>
-        <td>${song.title}</td>
+        <td>${index + 1}</td>
+        <td class="song-title">${song.title}</td>
         <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
         <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
         <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
@@ -200,10 +200,8 @@
   }
 
   tbody.addEventListener('dragstart', (e) => {
-    if (e.target.classList.contains('handle')) {
+    if (e.target.tagName === 'TR' || e.target.closest('tr')) {
       draggedRow = e.target.closest('tr');
-    } else {
-      e.preventDefault();
     }
   });
 
