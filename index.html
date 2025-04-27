@@ -139,6 +139,7 @@
           await remove(ref(db, 'songs'));
           await remove(ref(db, 'order'));
           await initializeSongs();
+          location.reload();
         }
       });
       listenToDatabase();
