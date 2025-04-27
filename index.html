@@ -52,9 +52,18 @@
       width: 60px;
       text-align: center;
     }
-    .highlight {
-      background-color: #8bc34a;
-      transition: background-color 0.5s;
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
@@ -80,6 +89,8 @@
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
+
+  <button id="resetButton">Setlist zurücksetzen</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -192,8 +203,30 @@ async function loadSongs() {
 }
 
 loadSongs();
+
+document.getElementById("resetButton").addEventListener("click", async () => {
+  if (confirm("Willst du wirklich die Setlist zurücksetzen?")) {
+    const songsRef = ref(db, "songs");
+    const songEntries = {};
+
+    songsData.forEach((song, index) => {
+      const id = `s${index}`;
+      songEntries[id] = {
+        title: song.title,
+        bpm: song.bpm,
+        drums: false,
+        keys: false,
+        guitar: false,
+        bass: false,
+        vocals: false
+      };
+    });
+
+    await set(songsRef, songEntries);
+    location.reload();
+  }
+});
 </script>
 
 </body>
 </html>
-
