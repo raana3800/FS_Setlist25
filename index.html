@@ -6,8 +6,8 @@
   <style>
     body {
       font-family: 'Courier New', Courier, monospace;
-      background-color: #2b2b2b; /* Dunkler Tafel-Look */
-      color: #ffffff; /* Weiße Schrift */
+      background-color: #2b2b2b; /* Tafellook */
+      color: #ffffff;
       margin: 20px;
       text-align: center;
     }
@@ -22,7 +22,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      background-color: #3b3b3b; /* Etwas heller als Hintergrund */
+      background-color: #3b3b3b;
       margin-top: 20px;
     }
     th, td {
@@ -46,9 +46,13 @@
 </head>
 <body>
 
+<!-- Logo -->
 <img src="fs_logo300.png" alt="Band Logo" class="logo">
+
+<!-- Überschrift -->
 <h1>Setlist '25</h1>
 
+<!-- Tabelle -->
 <table id="setlist">
   <thead>
     <tr>
@@ -67,9 +71,105 @@
   </tbody>
 </table>
 
-<!-- Dein JavaScript bleibt gleich -->
+<!-- Script Bereich -->
 <script type="module">
-  /* Hier bleibt dein kompletter Realtime Database Code drin */
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+  // Deine Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
+    authDomain: "fssetlist2025.firebaseapp.com",
+    databaseURL: "https://fssetlist2025-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "fssetlist2025",
+    storageBucket: "fssetlist2025.appspot.com",
+    messagingSenderId: "489478918968",
+    appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const songsRef = ref(db, "songs");
+  const tbody = document.querySelector('#setlist tbody');
+
+  // Songs laden
+  onValue(songsRef, (snapshot) => {
+    tbody.innerHTML = '';
+    let songs = [];
+    snapshot.forEach(childSnapshot => {
+      songs.push({ id: childSnapshot.key, ...childSnapshot.val() });
+    });
+
+    songs.sort((a, b) => a.order - b.order);
+
+    songs.forEach((song, index) => {
+      const row = document.createElement('tr');
+      row.setAttribute('draggable', 'true');
+      row.dataset.id = song.id;
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${song.title}</td>
+        <td>${song.bpm}</td>
+        <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    setDraggable();
+  });
+
+  // Status toggeln
+  tbody.addEventListener('click', (e) => {
+    if (e.target.classList.contains('status')) {
+      const row = e.target.closest('tr');
+      const id = row.dataset.id;
+      const instrument = e.target.dataset.instrument;
+      const current = e.target.innerText === '✅';
+
+      update(ref(db, `songs/${id}`), {
+        [instrument]: !current
+      });
+    }
+  });
+
+  // Drag & Drop
+  let draggedRow = null;
+
+  function setDraggable() {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+      row.setAttribute('draggable', 'true');
+    });
+  }
+
+  tbody.addEventListener('dragstart', (e) => {
+    if (e.target.tagName === 'TR') {
+      draggedRow = e.target;
+    }
+  });
+
+  tbody.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const targetRow = e.target.closest('tr');
+    if (targetRow && targetRow !== draggedRow) {
+      const rect = targetRow.getBoundingClientRect();
+      const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+      tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+    }
+  });
+
+  tbody.addEventListener('drop', () => {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const id = row.dataset.id;
+      update(ref(db, `songs/${id}`), { order: index });
+    });
+  });
+
 </script>
 
 </body>
