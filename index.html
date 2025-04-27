@@ -42,7 +42,8 @@
     .green { color: #00ff00; }
     .red { color: #ff6666; }
     .song-title { font-weight: bold; font-size: 1.2rem; font-family: 'Patrick Hand', cursive; }
-    .drag-handle { cursor: grab; font-size: 1.5rem; }
+    .drag-handle { cursor: grab; font-size: 1.5rem; transition: transform 0.2s ease, color 0.2s ease; }
+    .drag-handle.active { transform: scale(1.5); color: #ffc107; }
     input.bpm-input { width: 60px; padding: 5px; font-size: 1rem; text-align: center; transition: background-color 0.3s ease; }
     input.bpm-input.highlight { background-color: #8bc34a; }
     thead th { font-size: 1.3rem; background-color: #3a5f39; }
@@ -121,6 +122,14 @@
         titleInput.value = '';
         bpmInput.value = '';
         alert('Song hinzugefügt!');
+      });
+
+      document.querySelectorAll('.drag-handle').forEach(handle => {
+        handle.addEventListener('mousedown', () => handle.classList.add('active'));
+        handle.addEventListener('mouseup', () => handle.classList.remove('active'));
+        handle.addEventListener('mouseleave', () => handle.classList.remove('active'));
+        handle.addEventListener('touchstart', () => handle.classList.add('active'));
+        handle.addEventListener('touchend', () => handle.classList.remove('active'));
       });
 
       document.getElementById('resetButton').addEventListener('click', async () => {
