@@ -39,30 +39,43 @@
       cursor: pointer;
       font-size: 24px;
     }
-    tbody tr {
-      cursor: move;
+    td.handle {
+      cursor: grab;
+      font-size: 24px;
     }
-    
-@media (max-width: 768px) {
-  body {
-    margin: 10px;
-  }
-  img.logo {
-    width: 120px;
-  }
-  h1 {
-    font-size: 1.5em;
-  }
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  th, td {
-    padding: 8px;
-    font-size: 0.9em;
-  }
-}
+    tbody tr {
+      cursor: default; /* Zeile selbst nicht ziehbar, nur der Griff */
+    }
+    input.bpm-input {
+      width: 60px;
+      font-size: 1em;
+      text-align: center;
+    }
+
+    /* Mobile Optimierung */
+    @media (max-width: 768px) {
+      body {
+        margin: 10px;
+      }
+      img.logo {
+        width: 120px;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      th, td {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+      input.bpm-input {
+        width: 50px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -77,14 +90,14 @@
 <table id="setlist">
   <thead>
     <tr>
-      <th>#</th>
+      <th>≡</th> <!-- Drag Handle -->
       <th>Song</th>
       <th>BPM</th>
-      <th>Drums</th>
-      <th>Keyboard</th>
-      <th>Gitarre</th>
-      <th>Bass</th>
-      <th>Gesang</th>
+      <th>🥁</th> <!-- Drums -->
+      <th>🎹</th> <!-- Keyboard -->
+      <th>🎸</th> <!-- Gitarre -->
+      <th>𝄢</th> <!-- Bass -->
+      <th>🎤</th> <!-- Gesang -->
     </tr>
   </thead>
   <tbody>
@@ -113,7 +126,6 @@
   const songsRef = ref(db, "songs");
   const tbody = document.querySelector('#setlist tbody');
 
-  // Songs laden
   onValue(songsRef, (snapshot) => {
     tbody.innerHTML = '';
     let songs = [];
@@ -128,9 +140,9 @@
       row.setAttribute('draggable', 'true');
       row.dataset.id = song.id;
       row.innerHTML = `
-        <td>${index + 1}</td>
+        <td class="handle">≡</td>
         <td>${song.title}</td>
-        <td>${song.bpm}</td>
+        <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
         <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
         <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
         <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
@@ -157,6 +169,23 @@
     }
   });
 
+  // BPM ändern
+  tbody.addEventListener('change', (e) => {
+    if (e.target.classList.contains('bpm-input')) {
+      const newBpm = parseFloat(e.target.value);
+      const id = e.target.dataset.id;
+
+      if (newBpm >= 60 && newBpm <= 240) {
+        update(ref(db, `songs/${id}`), {
+          bpm: newBpm
+        });
+      } else {
+        alert('BPM muss zwischen 60 und 240 liegen!');
+        e.target.value = 120;
+      }
+    }
+  });
+
   // Drag & Drop
   let draggedRow = null;
 
@@ -168,8 +197,10 @@
   }
 
   tbody.addEventListener('dragstart', (e) => {
-    if (e.target.tagName === 'TR') {
-      draggedRow = e.target;
+    if (e.target.classList.contains('handle')) {
+      draggedRow = e.target.closest('tr');
+    } else {
+      e.preventDefault();
     }
   });
 
