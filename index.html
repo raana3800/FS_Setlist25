@@ -1,167 +1,180 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setlist 2025</title>
-  <style>
-    body {
-      background-color: #2e4d2c;
-      font-family: 'Arial Black', sans-serif;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-    img.logo {
-      max-width: 250px;
-      margin: 10px 0;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-      background: rgba(0,0,0,0.2);
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-    }
-    .drag-handle {
-      cursor: grab;
-    }
-    .status {
-      cursor: pointer;
-      font-size: 2rem;
-      text-align: center;
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    .green {
-      color: limegreen;
-      background-color: rgba(0, 255, 0, 0.2);
-    }
-    .red {
-      color: red;
-      background-color: rgba(255, 0, 0, 0.2);
-    }
-    input.bpm-input {
-      width: 60px;
-      text-align: center;
-    }
-    .highlight {
-      animation: highlight 0.5s ease;
-    }
-    @keyframes highlight {
-      0% { background-color: yellow; }
-      100% { background-color: transparent; }
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Setlist Übersicht</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .status {
+            cursor: pointer;
+            font-size: 24px;
+        }
+    </style>
 </head>
-
 <body>
 
-  <img src="fs_logo300.png" alt="FS Logo" class="logo">
-  <h1>Setlist '25</h1>
+<h1>Setlist</h1>
 
-  <table>
+<table>
     <thead>
-      <tr>
-        <th>≡</th>
-        <th>#</th>
-        <th>Songtitel</th>
-        <th>🥁</th>
-        <th>🎹</th>
-        <th>🎸</th>
-        <th>𝄢</th>
-        <th>🎤</th>
-        <th>BPM</th>
-      </tr>
+        <tr>
+            <th>#</th>
+            <th>Song</th>
+            <th>BPM</th>
+            <th>Drums</th>
+            <th>Keyboard</th>
+            <th>Gitarre</th>
+            <th>Bass</th>
+            <th>Gesang</th>
+        </tr>
     </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>Don't Change</td>
+            <td>164</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Ready to Start</td>
+            <td>190</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Cities in Dust</td>
+            <td>120</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Hungry Like the Wolf</td>
+            <td>128</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>The Safety Dance</td>
+            <td>102</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Early Morning Wake Up Call</td>
+            <td>166</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>A Forest</td>
+            <td>163</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>I Ran (So Far Away)</td>
+            <td>145.5</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td>Enola Gay</td>
+            <td>143</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>You Spin Me Round (Like a Record)</td>
+            <td>128</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td>You Keep Me Hangin' On</td>
+            <td>132</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Touch Me (I Want Your Body)</td>
+            <td>121</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        </tr>
+    </tbody>
+</table>
 
-  <button id="resetButton">Setlist zurücksetzen</button>
-
-<script type="module">
-import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
-
-const defaultSongs = [
-  { title: "Don't Change", bpm: 164 },
-  { title: "Ready to Start", bpm: 190 },
-  { title: "Cities in Dust", bpm: 120 },
-  { title: "Hungry Like the Wolf", bpm: 128 },
-  { title: "The Safety Dance", bpm: 102 },
-  { title: "Early Morning Wake Up Call", bpm: 166 },
-  { title: "A Forest", bpm: 153 },
-  { title: "I Ran (So Far Away)", bpm: 145.5 },
-  { title: "Enola Gay", bpm: 143 },
-  { title: "You Spin Me 'Round (Like a Record)", bpm: 128 },
-  { title: "You Keep Me Hangin' On", bpm: 132 },
-  { title: "Touch Me (I Want Your Body)", bpm: 121 }
-];
-
-const instruments = ["drums", "keys", "guitar", "bass", "vocals"];
-
-function renderSongs(songs) {
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
-
-  songs.forEach((song, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td class="drag-handle">≡</td>
-      <td>${index + 1}</td>
-      <td>${song.title}</td>
-      ${instruments.map(() => `<td class="status red">✗</td>`).join('')}
-      <td><input type="number" class="bpm-input" value="${song.bpm}" min="60" max="240"></td>
-    `;
-    tableBody.appendChild(row);
-  });
-
-  new Sortable(tableBody, { handle: '.drag-handle', animation: 150 });
-
-  document.querySelectorAll('.status').forEach(cell => {
-    cell.addEventListener('click', () => {
-      cell.classList.toggle('green');
-      cell.classList.toggle('red');
-      cell.textContent = cell.classList.contains('green') ? '✓' : '✗';
-    });
-  });
-
-  document.querySelectorAll('.bpm-input').forEach(input => {
-    input.addEventListener('input', () => {
-      input.classList.add('highlight');
-      setTimeout(() => input.classList.remove('highlight'), 500);
-    });
-  });
+<script>
+function toggleStatus(element) {
+    if (element.innerHTML === '❌') { // rotes X
+        element.innerHTML = '✅'; // grüner Haken
+    } else {
+        element.innerHTML = '❌'; // rotes X
+    }
 }
-
-document.getElementById('resetButton').addEventListener('click', () => {
-  if (confirm('Willst du die Setlist wirklich zurücksetzen?')) {
-    renderSongs(defaultSongs);
-  }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  renderSongs(defaultSongs);
-});
 </script>
 
 </body>
