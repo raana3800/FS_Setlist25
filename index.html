@@ -24,13 +24,16 @@
             cursor: pointer;
             font-size: 24px;
         }
+        tbody tr {
+            cursor: move;
+        }
     </style>
 </head>
 <body>
 
 <h1>Setlist</h1>
 
-<table>
+<table id="setlist">
     <thead>
         <tr>
             <th>#</th>
@@ -44,137 +47,91 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>1</td>
-            <td>Don't Change</td>
-            <td>164</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>Ready to Start</td>
-            <td>190</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>3</td>
-            <td>Cities in Dust</td>
-            <td>120</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td>Hungry Like the Wolf</td>
-            <td>128</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td>The Safety Dance</td>
-            <td>102</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>6</td>
-            <td>Early Morning Wake Up Call</td>
-            <td>166</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>7</td>
-            <td>A Forest</td>
-            <td>163</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>8</td>
-            <td>I Ran (So Far Away)</td>
-            <td>145.5</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>9</td>
-            <td>Enola Gay</td>
-            <td>143</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>10</td>
-            <td>You Spin Me Round (Like a Record)</td>
-            <td>128</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>11</td>
-            <td>You Keep Me Hangin' On</td>
-            <td>132</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
-        <tr>
-            <td>12</td>
-            <td>Touch Me (I Want Your Body)</td>
-            <td>121</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-            <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        </tr>
+        <!-- Hier sind deine Songs -->
     </tbody>
 </table>
 
 <script>
 function toggleStatus(element) {
-    if (element.innerHTML === '❌') { // rotes X
-        element.innerHTML = '✅'; // grüner Haken
+    if (element.innerHTML === '❌') {
+        element.innerHTML = '✅';
     } else {
-        element.innerHTML = '❌'; // rotes X
+        element.innerHTML = '❌';
     }
 }
+
+// Drag & Drop Funktionalität
+const tbody = document.querySelector('#setlist tbody');
+let draggedRow = null;
+
+tbody.addEventListener('dragstart', (e) => {
+    if (e.target.tagName === 'TR') {
+        draggedRow = e.target;
+    }
+});
+
+tbody.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const targetRow = e.target.closest('tr');
+    if (targetRow && targetRow !== draggedRow) {
+        const rect = targetRow.getBoundingClientRect();
+        const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+        tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+    }
+});
+
+tbody.addEventListener('dragend', () => {
+    draggedRow = null;
+    updateRowNumbers();
+});
+
+// Nummerierung nach Sortieren aktualisieren
+function updateRowNumbers() {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+        row.querySelector('td').textContent = index + 1;
+    });
+}
+
+// Alle Zeilen draggable machen
+const rows = tbody.querySelectorAll('tr');
+rows.forEach(row => row.setAttribute('draggable', 'true'));
+</script>
+
+<script>
+// Songs in das tbody einfügen
+const songs = [
+    {title: "Don't Change", bpm: 164},
+    {title: "Ready to Start", bpm: 190},
+    {title: "Cities in Dust", bpm: 120},
+    {title: "Hungry Like the Wolf", bpm: 128},
+    {title: "The Safety Dance", bpm: 102},
+    {title: "Early Morning Wake Up Call", bpm: 166},
+    {title: "A Forest", bpm: 163},
+    {title: "I Ran (So Far Away)", bpm: 145.5},
+    {title: "Enola Gay", bpm: 143},
+    {title: "You Spin Me Round (Like a Record)", bpm: 128},
+    {title: "You Keep Me Hangin' On", bpm: 132},
+    {title: "Touch Me (I Want Your Body)", bpm: 121}
+];
+
+const tbodyElement = document.querySelector('#setlist tbody');
+
+songs.forEach((song, index) => {
+    const row = document.createElement('tr');
+    row.setAttribute('draggable', 'true');
+    row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${song.title}</td>
+        <td>${song.bpm}</td>
+        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
+    `;
+    tbodyElement.appendChild(row);
+});
 </script>
 
 </body>
