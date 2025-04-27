@@ -1,80 +1,192 @@
-function renderSongs(songList) {
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Band-Setlist '25</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-  const clickSounds = [
-    new Audio('https://cdn.pixabay.com/download/audio/2022/03/26/audio_593b28b1d7.mp3?filename=game-notification-132514.mp3'),
-    new Audio('https://cdn.pixabay.com/download/audio/2021/09/01/audio_cdd7e7605e.mp3?filename=menu-click-110999.mp3'),
-    new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_a7e5fc4f97.mp3?filename=quick-click-124763.mp3')
-  ];
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJ0oszgQj1sJFABt4R4OEos3629dmS5RU",
+      authDomain: "fssetlist.firebaseapp.com",
+      databaseURL: "https://fssetlist-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "fssetlist",
+      storageBucket: "fssetlist.appspot.com",
+      messagingSenderId: "765650285468",
+      appId: "1:765650285468:web:68d940c531ce1cbcd38e59"
+    };
 
-  const successSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e1b9217e2.mp3?filename=success-1-6297.mp3');
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  songList.forEach((song, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td class="drag-handle">≡</td>
-      <td>${index + 1}</td>
-      <td class="song-title">${song.title}</td>
-      <td class="status red">✗</td>
-      <td class="status red">✗</td>
-      <td class="status red">✗</td>
-      <td class="status red">✗</td>
-      <td class="status red">✗</td>
-      <td><input type="number" class="bpm-input" value="${song.bpm}" min="60" max="240"></td>
-    `;
-    tableBody.appendChild(row);
-  });
+    async function initializeSongs() {
+      const defaultSongs = [
+        { title: "Don't Change", bpm: 164 },
+        { title: "Ready to Start", bpm: 190 },
+        { title: "Cities in Dust", bpm: 120 },
+        { title: "Hungry Like the Wolf", bpm: 128 },
+        { title: "The Safety Dance", bpm: 102 },
+        { title: "Early Morning Wake Up Call", bpm: 166 },
+        { title: "A Forest", bpm: 153 },
+        { title: "I Ran (So Far Away)", bpm: 145.5 },
+        { title: "Enola Gay", bpm: 143 },
+        { title: "You Spin Me Round (Like a Record)", bpm: 128 },
+        { title: "You Keep Me Hangin' On", bpm: 132 },
+        { title: "Touch Me (I Want Your Body)", bpm: 121 }
+      ];
 
-  new Sortable(tableBody, { handle: '.drag-handle', animation: 150 });
+      const songsRef = ref(db, 'songs');
+      const orderRef = ref(db, 'order');
+      const songEntries = {};
+      const order = [];
 
-  document.querySelectorAll('.bpm-input').forEach(input => {
-    input.addEventListener('change', () => {
-      input.classList.add('highlight');
-      setTimeout(() => input.classList.remove('highlight'), 600);
-    });
-  });
+      defaultSongs.forEach((song, index) => {
+        const id = `s${index}`;
+        songEntries[id] = song;
+        order.push(id);
+      });
 
-  document.querySelectorAll('.status').forEach(status => {
-    status.addEventListener('click', () => {
-      const sound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
-      sound.currentTime = 0;
-      sound.play();
-
-      status.classList.add('clicked');
-      setTimeout(() => status.classList.remove('clicked'), 300);
-
-      if (status.classList.contains('red')) {
-        status.classList.remove('red');
-        status.classList.add('green');
-        status.innerText = '✓';
-      } else {
-        status.classList.remove('green');
-        status.classList.add('red');
-        status.innerText = '✗';
-      }
-
-      const row = status.closest('tr');
-      const statuses = row.querySelectorAll('.status');
-      const allGreen = Array.from(statuses).every(s => s.classList.contains('green'));
-      if (allGreen) {
-        successSound.currentTime = 0;
-        successSound.play();
-      }
-    });
-  });
-
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .clicked {
-      animation: pop 0.3s;
+      await set(songsRef, songEntries);
+      await set(orderRef, order);
     }
 
-    @keyframes pop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.4); }
-      100% { transform: scale(1); }
+    function renderSongs(songList) {
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+
+      const clickSounds = [
+        new Audio('https://cdn.pixabay.com/download/audio/2022/03/26/audio_593b28b1d7.mp3?filename=game-notification-132514.mp3'),
+        new Audio('https://cdn.pixabay.com/download/audio/2021/09/01/audio_cdd7e7605e.mp3?filename=menu-click-110999.mp3'),
+        new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_a7e5fc4f97.mp3?filename=quick-click-124763.mp3')
+      ];
+
+      const successSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e1b9217e2.mp3?filename=success-1-6297.mp3');
+
+      songList.forEach((song, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="drag-handle">≡</td>
+          <td>${index + 1}</td>
+          <td class="song-title">${song.title}</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td class="status red">✗</td>
+          <td><input type="number" class="bpm-input" value="${song.bpm}" min="60" max="240"></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      new Sortable(tableBody, { handle: '.drag-handle', animation: 150 });
+
+      document.querySelectorAll('.bpm-input').forEach(input => {
+        input.addEventListener('change', () => {
+          input.classList.add('highlight');
+          setTimeout(() => input.classList.remove('highlight'), 600);
+        });
+      });
+
+      document.querySelectorAll('.status').forEach(status => {
+        status.addEventListener('click', () => {
+          const sound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+          sound.currentTime = 0;
+          sound.play();
+
+          status.classList.add('clicked');
+          setTimeout(() => status.classList.remove('clicked'), 300);
+
+          if (status.classList.contains('red')) {
+            status.classList.remove('red');
+            status.classList.add('green');
+            status.innerText = '✓';
+          } else {
+            status.classList.remove('green');
+            status.classList.add('red');
+            status.innerText = '✗';
+          }
+
+          const row = status.closest('tr');
+          const statuses = row.querySelectorAll('.status');
+          const allGreen = Array.from(statuses).every(s => s.classList.contains('green'));
+          if (allGreen) {
+            successSound.currentTime = 0;
+            successSound.play();
+          }
+        });
+      });
     }
-  `;
-  document.head.appendChild(style);
-}
+
+    function listenToDatabase() {
+      const songsRef = ref(db, 'songs');
+      const orderRef = ref(db, 'order');
+
+      onValue(orderRef, orderSnap => {
+        const order = orderSnap.val();
+        if (!order) return;
+        onValue(songsRef, songsSnap => {
+          const songs = songsSnap.val();
+          if (!songs) return;
+          const songList = order.map(id => ({ id, title: songs[id].title, bpm: songs[id].bpm }));
+          renderSongs(songList);
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('resetButton').addEventListener('click', async () => {
+        if (confirm('Willst du die Setlist wirklich komplett zurücksetzen?')) {
+          await remove(ref(db, 'songs'));
+          await remove(ref(db, 'order'));
+          await initializeSongs();
+        }
+      });
+      listenToDatabase();
+    });
+  </script>
+  <style>
+    body {
+      background-color: #2e4d2c;
+      font-family: 'Arial Black', sans-serif;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    img.logo { max-width: 250px; margin: 10px 0; }
+    h1 { font-size: 2.5rem; margin-bottom: 20px; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; background: rgba(0,0,0,0.3); }
+    th, td { border: 1px solid #ccc; padding: 10px; }
+    .drag-handle { cursor: grab; }
+    .status { cursor: pointer; font-size: 1.5rem; }
+    .green { color: limegreen; }
+    .red { color: red; }
+    input.bpm-input { width: 60px; }
+    button { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+  <img src="fs_logo300.png" alt="FS Logo" class="logo">
+  <h1>Setlist '25</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>≡</th>
+        <th>#</th>
+        <th>Songtitel</th>
+        <th>🥁</th>
+        <th>🎹</th>
+        <th>🎸</th>
+        <th>𝄢</th>
+        <th>🎤</th>
+        <th>BPM</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <button id="resetButton">Setlist zurücksetzen</button>
+</body>
+</html>
