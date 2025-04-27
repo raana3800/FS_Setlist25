@@ -60,7 +60,7 @@
     }
     tbody tr {
       cursor: default;
-      transition: transform 0.2s ease, background-color 0.3s ease; /* ANIMATION */
+      transition: transform 0.2s ease, opacity 0.2s ease; /* ANIMATION */
     }
     tr.dragging {
       opacity: 0.5;
@@ -138,7 +138,6 @@ const songsRef = ref(db, "songs");
 const tbody = document.querySelector('#setlist tbody');
 
 let draggedRow = null;
-let isTouch = false;
 
 onValue(songsRef, (snapshot) => {
   tbody.innerHTML = '';
@@ -177,42 +176,25 @@ function setDraggable() {
     row.addEventListener('dragstart', (e) => {
       if (e.target.classList.contains('handle')) {
         draggedRow = row;
-        row.classList.add('dragging');
+        setTimeout(() => row.classList.add('dragging'), 0);
       } else {
         e.preventDefault();
       }
     });
-
-    row.addEventListener('touchstart', (e) => {
-      if (e.target.classList.contains('handle')) {
-        isTouch = true;
-        draggedRow = row;
-        row.classList.add('dragging');
-      }
-    }, { passive: true });
   });
 }
 
 tbody.addEventListener('dragover', (e) => {
   e.preventDefault();
-  const target = e.target.closest('tr');
-  if (target && target !== draggedRow) {
-    const rect = target.getBoundingClientRect();
+  const targetRow = e.target.closest('tr');
+  if (targetRow && targetRow !== draggedRow) {
+    const rect = targetRow.getBoundingClientRect();
     const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-    tbody.insertBefore(draggedRow, next && target.nextSibling || target);
+    tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
   }
 });
 
-tbody.addEventListener('touchmove', (e) => {
-  if (isTouch) {
-    e.preventDefault();
-  }
-}, { passive: false });
-
-tbody.addEventListener('drop', () => finishDrag());
-tbody.addEventListener('touchend', () => finishDrag());
-
-function finishDrag() {
+tbody.addEventListener('drop', () => {
   if (draggedRow) {
     draggedRow.classList.remove('dragging');
     const rows = tbody.querySelectorAll('tr');
@@ -221,9 +203,8 @@ function finishDrag() {
       update(ref(db, `songs/${id}`), { order: index });
     });
     draggedRow = null;
-    isTouch = false;
   }
-}
+});
 
 // Status toggeln
 tbody.addEventListener('click', (e) => {
