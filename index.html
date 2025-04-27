@@ -60,6 +60,7 @@
     }
     tbody tr {
       cursor: default;
+      transition: all 0.3s ease; /* ANIMATION hier */
     }
 
     /* Mobile Optimierung */
@@ -91,19 +92,15 @@
 </head>
 <body>
 
-<!-- Logo -->
 <img src="fs_logo300.png" alt="Band Logo" class="logo">
-
-<!-- Überschrift -->
 <h1>Setlist '25</h1>
 
-<!-- Tabelle in Wrapper -->
 <div class="table-wrapper">
   <table id="setlist">
     <thead>
       <tr>
-        <th>#</th> <!-- Songnummer -->
-        <th>≡</th> <!-- Drag Handle -->
+        <th>#</th>
+        <th>≡</th>
         <th>Song</th>
         <th>BPM</th>
         <th>🥁</th>
@@ -199,20 +196,15 @@ tbody.addEventListener('change', (e) => {
   }
 });
 
-// Drag & Drop Handling
+// Drag & Drop für Desktop und Mobile
 let draggedRow = null;
-
-function setDraggable() {
-  const rows = tbody.querySelectorAll('tr');
-  rows.forEach(row => {
-    row.setAttribute('draggable', 'true');
-  });
-}
+let touchStartRow = null;
 
 // Desktop: Drag via Griff
 tbody.addEventListener('dragstart', (e) => {
   if (e.target.classList.contains('handle')) {
     draggedRow = e.target.closest('tr');
+    e.target.closest('tr').style.opacity = "0.5";
   } else {
     e.preventDefault();
   }
@@ -233,15 +225,15 @@ tbody.addEventListener('drop', () => {
   rows.forEach((row, index) => {
     const id = row.dataset.id;
     update(ref(db, `songs/${id}`), { order: index });
+    row.style.opacity = "1";
   });
 });
 
 // Mobile: Touch Drag
-let touchStartRow = null;
-
 tbody.addEventListener('touchstart', (e) => {
   if (e.target.classList.contains('handle')) {
     touchStartRow = e.target.closest('tr');
+    touchStartRow.style.opacity = "0.5";
   }
 }, { passive: true });
 
@@ -262,10 +254,10 @@ tbody.addEventListener('touchend', (e) => {
         update(ref(db, `songs/${id}`), { order: index });
       });
     }
+    touchStartRow.style.opacity = "1";
     touchStartRow = null;
   }
 });
-
 </script>
 
 </body>
