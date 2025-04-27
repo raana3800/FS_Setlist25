@@ -153,4 +153,91 @@
       const row = document.createElement('tr');
       row.setAttribute('draggable', 'true');
       row.dataset.id = song.id;
-      row
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td class="handle">≡</td>
+        <td class="song-title">${song.title}</td>
+        <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
+        <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
+        <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    setDraggable();
+  });
+
+  // Status toggeln
+  tbody.addEventListener('click', (e) => {
+    if (e.target.classList.contains('status')) {
+      const row = e.target.closest('tr');
+      const id = row.dataset.id;
+      const instrument = e.target.dataset.instrument;
+      const current = e.target.innerText === '✅';
+
+      update(ref(db, `songs/${id}`), {
+        [instrument]: !current
+      });
+    }
+  });
+
+  // BPM ändern
+  tbody.addEventListener('change', (e) => {
+    if (e.target.classList.contains('bpm-input')) {
+      const newBpm = parseFloat(e.target.value);
+      const id = e.target.dataset.id;
+
+      if (newBpm >= 60 && newBpm <= 240) {
+        update(ref(db, `songs/${id}`), {
+          bpm: newBpm
+        });
+      } else {
+        alert('BPM muss zwischen 60 und 240 liegen!');
+        e.target.value = 120;
+      }
+    }
+  });
+
+  // Drag & Drop
+  let draggedRow = null;
+
+  function setDraggable() {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+      row.setAttribute('draggable', 'true');
+    });
+  }
+
+  tbody.addEventListener('dragstart', (e) => {
+    if (e.target.classList.contains('handle')) {
+      draggedRow = e.target.closest('tr');
+    } else {
+      e.preventDefault();
+    }
+  });
+
+  tbody.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const targetRow = e.target.closest('tr');
+    if (targetRow && targetRow !== draggedRow) {
+      const rect = targetRow.getBoundingClientRect();
+      const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+      tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+    }
+  });
+
+  tbody.addEventListener('drop', () => {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const id = row.dataset.id;
+      update(ref(db, `songs/${id}`), { order: index });
+    });
+  });
+
+</script>
+
+</body>
+</html>
