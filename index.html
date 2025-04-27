@@ -21,12 +21,44 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    async function initializeSongs() {
+      const defaultSongs = [
+        { title: "Don't Change", bpm: 164 },
+        { title: "Ready to Start", bpm: 190 },
+        { title: "Cities in Dust", bpm: 120 },
+        { title: "Hungry Like the Wolf", bpm: 128 },
+        { title: "The Safety Dance", bpm: 102 },
+        { title: "Early Morning Wake Up Call", bpm: 166 },
+        { title: "A Forest", bpm: 153 },
+        { title: "I Ran (So Far Away)", bpm: 145.5 },
+        { title: "Enola Gay", bpm: 143 },
+        { title: "You Spin Me Round (Like a Record)", bpm: 128 },
+        { title: "You Keep Me Hangin' On", bpm: 132 },
+        { title: "Touch Me (I Want Your Body)", bpm: 121 }
+      ];
+
+      const songsRef = ref(db, 'songs');
+      const orderRef = ref(db, 'order');
+      const songEntries = {};
+      const order = [];
+
+      defaultSongs.forEach((song, index) => {
+        const id = `s${index}`;
+        songEntries[id] = song;
+        order.push(id);
+      });
+
+      await set(songsRef, songEntries);
+      await set(orderRef, order);
+    }
+
     window.db = db;
     window.dbRef = ref;
     window.dbSet = set;
     window.dbPush = push;
     window.dbRemove = remove;
     window.dbOnValue = onValue;
+    window.initializeSongs = initializeSongs;
   </script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
@@ -87,59 +119,14 @@
 
   <script type="module">
     document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.bpm-input').forEach(input => {
-        input.addEventListener('change', () => {
-          input.classList.add('highlight');
-          setTimeout(() => {
-            input.classList.remove('highlight');
-          }, 600);
-        });
-      });
-
-      document.getElementById('addSongButton').addEventListener('click', async () => {
-        const titleInput = document.getElementById('newSongTitle');
-        const bpmInput = document.getElementById('newSongBpm');
-        const title = titleInput.value.trim();
-        let bpm = parseInt(bpmInput.value);
-
-        if (!title || isNaN(bpm) || bpm < 60 || bpm > 240) {
-          alert('Bitte gültigen Songtitel und BPM (60-240) eingeben.');
-          return;
-        }
-
-        const songsRef = dbRef(db, 'songs');
-        const newSongRef = dbPush(songsRef);
-        const newSongId = newSongRef.key;
-
-        await dbSet(newSongRef, { title: title, bpm: bpm });
-
-        const orderRef = dbRef(db, 'order');
-        const orderSnap = await get(orderRef);
-        let currentOrder = orderSnap.exists() ? orderSnap.val() : [];
-        currentOrder.push(newSongId);
-        await dbSet(orderRef, currentOrder);
-
-        titleInput.value = '';
-        bpmInput.value = '';
-        alert('Song hinzugefügt!');
-      });
-
-      document.querySelectorAll('.drag-handle').forEach(handle => {
-        handle.addEventListener('mousedown', () => handle.classList.add('active'));
-        handle.addEventListener('mouseup', () => handle.classList.remove('active'));
-        handle.addEventListener('mouseleave', () => handle.classList.remove('active'));
-        handle.addEventListener('touchstart', () => handle.classList.add('active'));
-        handle.addEventListener('touchend', () => handle.classList.remove('active'));
-      });
-
       document.getElementById('resetButton').addEventListener('click', async () => {
         if (confirm('Willst du die Setlist wirklich komplett zurücksetzen?')) {
-          await dbRemove(dbRef(db, 'songs/'));
-          await dbRemove(dbRef(db, 'order/'));
-          location.reload();
+          await window.dbRemove(window.dbRef(window.db, 'songs/'));
+          await window.dbRemove(window.dbRef(window.db, 'order/'));
+          await window.initializeSongs();
           const banner = document.getElementById('successBanner');
           banner.style.display = 'block';
-          setTimeout(() => { banner.style.display = 'none'; }, 3000);
+          setTimeout(() => { banner.style.display = 'none'; location.reload(); }, 2000);
         }
       });
     });
