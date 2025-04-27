@@ -7,6 +7,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+    import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAJ0oszgQj1sJFABt4R4OEos3629dmS5RU",
@@ -95,9 +96,6 @@
           sound.currentTime = 0;
           sound.play();
 
-          status.classList.add('clicked');
-          setTimeout(() => status.classList.remove('clicked'), 300);
-
           if (status.classList.contains('red')) {
             status.classList.remove('red');
             status.classList.add('green');
@@ -160,12 +158,27 @@
     table { width: 100%; margin-top: 20px; border-collapse: collapse; background: rgba(0,0,0,0.3); }
     th, td { border: 1px solid #ccc; padding: 10px; }
     .drag-handle { cursor: grab; }
-    .status { cursor: pointer; font-size: 1.5rem; }
-    .green { color: limegreen; }
-    .red { color: red; }
+    .status {
+      cursor: pointer;
+      font-size: 2rem;
+      text-align: center;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .green {
+      color: limegreen;
+      background-color: rgba(0, 255, 0, 0.1);
+    }
+    .red {
+      color: red;
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+    .clicked {
+      transform: scale(1.4);
+    }
     input.bpm-input { width: 60px; }
     button { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background-color: #45a049; }
+    .highlight { background-color: #8bc34a; transition: background-color 0.5s; }
   </style>
 </head>
 <body>
