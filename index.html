@@ -100,22 +100,7 @@
   <button id="resetButton">Setlist zurücksetzen</button>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getDatabase, ref, set, update, remove, get, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBFsxxC_WXKz6EIFB9PltvxVqTDt4wLXSw",
-  authDomain: "setlist2025v2.firebaseapp.com",
-  databaseURL: "https://setlist2025v2-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "setlist2025v2",
-  storageBucket: "setlist2025v2.appspot.com",
-  messagingSenderId: "398787404979",
-  appId: "1:398787404979:web:0b397889973390045c3cc6"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
 
 const defaultSongs = [
   { title: "Don't Change", bpm: 164 },
@@ -134,27 +119,11 @@ const defaultSongs = [
 
 const instruments = ["drums", "keys", "guitar", "bass", "vocals"];
 
-async function initializeSongs() {
-  const songsRef = ref(db, 'songs');
-  const orderRef = ref(db, 'order');
-  const songEntries = {};
-  const order = [];
-
-  defaultSongs.forEach((song, index) => {
-    const id = `s${index}`;
-    songEntries[id] = song;
-    order.push(id);
-  });
-
-  await set(songsRef, songEntries);
-  await set(orderRef, order);
-}
-
-function renderSongs(songList) {
+function renderSongs(songs) {
   const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
 
-  songList.forEach((song, index) => {
+  songs.forEach((song, index) => {
     const row = document.createElement('tr');
     row.innerHTML = `
       <td class="drag-handle">≡</td>
@@ -184,34 +153,15 @@ function renderSongs(songList) {
   });
 }
 
-async function loadSongs() {
-  const songsRef = ref(db, 'songs');
-  const orderRef = ref(db, 'order');
-
-  const orderSnap = await get(orderRef);
-  const songsSnap = await get(songsRef);
-
-  if (!orderSnap.exists() || !songsSnap.exists()) {
-    await initializeSongs();
-    return loadSongs();
-  }
-
-  const order = orderSnap.val();
-  const songs = songsSnap.val();
-  const songList = order.map(id => songs[id]);
-  renderSongs(songList);
-}
-
-document.getElementById('resetButton').addEventListener('click', async () => {
-  if (confirm('Willst du die Setlist wirklich komplett zurücksetzen?')) {
-    await remove(ref(db, 'songs'));
-    await remove(ref(db, 'order'));
-    await initializeSongs();
-    setTimeout(() => location.reload(), 500);
+document.getElementById('resetButton').addEventListener('click', () => {
+  if (confirm('Willst du die Setlist wirklich zurücksetzen?')) {
+    renderSongs(defaultSongs);
   }
 });
 
-loadSongs();
+document.addEventListener('DOMContentLoaded', () => {
+  renderSongs(defaultSongs);
+});
 </script>
 
 </body>
