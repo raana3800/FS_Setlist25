@@ -119,123 +119,152 @@
   </table>
 </div>
 
-<!-- Firebase Script -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
-    authDomain: "fssetlist2025.firebaseapp.com",
-    databaseURL: "https://fssetlist2025-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "fssetlist2025",
-    storageBucket: "fssetlist2025.appspot.com",
-    messagingSenderId: "489478918968",
-    appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
+  authDomain: "fssetlist2025.firebaseapp.com",
+  databaseURL: "https://fssetlist2025-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fssetlist2025",
+  storageBucket: "fssetlist2025.appspot.com",
+  messagingSenderId: "489478918968",
+  appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const songsRef = ref(db, "songs");
-  const tbody = document.querySelector('#setlist tbody');
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const songsRef = ref(db, "songs");
+const tbody = document.querySelector('#setlist tbody');
 
-  // Songs laden
-  onValue(songsRef, (snapshot) => {
-    tbody.innerHTML = '';
-    let songs = [];
-    snapshot.forEach(childSnapshot => {
-      songs.push({ id: childSnapshot.key, ...childSnapshot.val() });
-    });
-
-    songs.sort((a, b) => a.order - b.order);
-
-    songs.forEach((song, index) => {
-      const row = document.createElement('tr');
-      row.setAttribute('draggable', 'true');
-      row.dataset.id = song.id;
-      row.innerHTML = `
-        <td>${index + 1}</td>
-        <td class="handle">≡</td>
-        <td class="song-title">${song.title}</td>
-        <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
-        <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
-        <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
-        <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
-        <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
-        <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    setDraggable();
+onValue(songsRef, (snapshot) => {
+  tbody.innerHTML = '';
+  let songs = [];
+  snapshot.forEach(childSnapshot => {
+    songs.push({ id: childSnapshot.key, ...childSnapshot.val() });
   });
 
-  // Status toggeln
-  tbody.addEventListener('click', (e) => {
-    if (e.target.classList.contains('status')) {
-      const row = e.target.closest('tr');
-      const id = row.dataset.id;
-      const instrument = e.target.dataset.instrument;
-      const current = e.target.innerText === '✅';
+  songs.sort((a, b) => a.order - b.order);
 
-      update(ref(db, `songs/${id}`), {
-        [instrument]: !current
-      });
-    }
+  songs.forEach((song, index) => {
+    const row = document.createElement('tr');
+    row.setAttribute('draggable', 'true');
+    row.dataset.id = song.id;
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td class="handle">≡</td>
+      <td class="song-title">${song.title}</td>
+      <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
+      <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+    `;
+    tbody.appendChild(row);
   });
 
-  // BPM ändern
-  tbody.addEventListener('change', (e) => {
-    if (e.target.classList.contains('bpm-input')) {
-      const newBpm = parseFloat(e.target.value);
-      const id = e.target.dataset.id;
+  setDraggable();
+});
 
-      if (newBpm >= 60 && newBpm <= 240) {
-        update(ref(db, `songs/${id}`), {
-          bpm: newBpm
-        });
-      } else {
-        alert('BPM muss zwischen 60 und 240 liegen!');
-        e.target.value = 120;
-      }
-    }
-  });
+// Status toggeln
+tbody.addEventListener('click', (e) => {
+  if (e.target.classList.contains('status')) {
+    const row = e.target.closest('tr');
+    const id = row.dataset.id;
+    const instrument = e.target.dataset.instrument;
+    const current = e.target.innerText === '✅';
 
-  // Drag & Drop
-  let draggedRow = null;
-
-  function setDraggable() {
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach(row => {
-      row.setAttribute('draggable', 'true');
+    update(ref(db, `songs/${id}`), {
+      [instrument]: !current
     });
   }
+});
 
-  tbody.addEventListener('dragstart', (e) => {
-    if (e.target.classList.contains('handle')) {
-      draggedRow = e.target.closest('tr');
+// BPM ändern
+tbody.addEventListener('change', (e) => {
+  if (e.target.classList.contains('bpm-input')) {
+    const newBpm = parseFloat(e.target.value);
+    const id = e.target.dataset.id;
+
+    if (newBpm >= 60 && newBpm <= 240) {
+      update(ref(db, `songs/${id}`), {
+        bpm: newBpm
+      });
     } else {
-      e.preventDefault();
+      alert('BPM muss zwischen 60 und 240 liegen!');
+      e.target.value = 120;
     }
-  });
+  }
+});
 
-  tbody.addEventListener('dragover', (e) => {
+// Drag & Drop Handling
+let draggedRow = null;
+
+function setDraggable() {
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(row => {
+    row.setAttribute('draggable', 'true');
+  });
+}
+
+// Desktop: Drag via Griff
+tbody.addEventListener('dragstart', (e) => {
+  if (e.target.classList.contains('handle')) {
+    draggedRow = e.target.closest('tr');
+  } else {
     e.preventDefault();
-    const targetRow = e.target.closest('tr');
-    if (targetRow && targetRow !== draggedRow) {
-      const rect = targetRow.getBoundingClientRect();
-      const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-      tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
-    }
-  });
+  }
+});
 
-  tbody.addEventListener('drop', () => {
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-      const id = row.dataset.id;
-      update(ref(db, `songs/${id}`), { order: index });
-    });
+tbody.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  const targetRow = e.target.closest('tr');
+  if (targetRow && targetRow !== draggedRow) {
+    const rect = targetRow.getBoundingClientRect();
+    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+    tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+  }
+});
+
+tbody.addEventListener('drop', () => {
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const id = row.dataset.id;
+    update(ref(db, `songs/${id}`), { order: index });
   });
+});
+
+// Mobile: Touch Drag
+let touchStartRow = null;
+
+tbody.addEventListener('touchstart', (e) => {
+  if (e.target.classList.contains('handle')) {
+    touchStartRow = e.target.closest('tr');
+  }
+}, { passive: true });
+
+tbody.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+}, { passive: false });
+
+tbody.addEventListener('touchend', (e) => {
+  if (touchStartRow) {
+    const touch = e.changedTouches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetRow = element.closest('tr');
+    if (targetRow && targetRow !== touchStartRow) {
+      tbody.insertBefore(touchStartRow, targetRow.nextSibling || targetRow);
+      const rows = tbody.querySelectorAll('tr');
+      rows.forEach((row, index) => {
+        const id = row.dataset.id;
+        update(ref(db, `songs/${id}`), { order: index });
+      });
+    }
+    touchStartRow = null;
+  }
+});
 
 </script>
 
