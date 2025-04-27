@@ -47,22 +47,82 @@
         </tr>
     </thead>
     <tbody>
-        <!-- Hier sind deine Songs -->
+        <!-- Hier werden Songs geladen -->
     </tbody>
 </table>
 
-<script>
-function toggleStatus(element) {
-    if (element.innerHTML === '❌') {
-        element.innerHTML = '✅';
-    } else {
-        element.innerHTML = '❌';
-    }
-}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Drag & Drop Funktionalität
+const firebaseConfig = {
+    apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
+    authDomain: "fssetlist2025.firebaseapp.com",
+    projectId: "fssetlist2025",
+    storageBucket: "fssetlist2025.appspot.com",
+    messagingSenderId: "489478918968",
+    appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const songsCollection = collection(db, "songs");
+
 const tbody = document.querySelector('#setlist tbody');
+
+// Songs live laden
+onSnapshot(songsCollection, (snapshot) => {
+    tbody.innerHTML = '';
+    let songs = [];
+    snapshot.forEach(doc => {
+        songs.push({ id: doc.id, ...doc.data() });
+    });
+
+    songs.sort((a, b) => a.order - b.order);
+
+    songs.forEach((song, index) => {
+        const row = document.createElement('tr');
+        row.setAttribute('draggable', 'true');
+        row.dataset.id = song.id;
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${song.title}</td>
+            <td>${song.bpm}</td>
+            <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
+            <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
+            <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
+            <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
+            <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    setDraggable();
+});
+
+// Status toggeln
+tbody.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('status')) {
+        const row = e.target.closest('tr');
+        const id = row.dataset.id;
+        const instrument = e.target.dataset.instrument;
+        const current = e.target.innerText === '✅';
+
+        await updateDoc(doc(db, "songs", id), {
+            [instrument]: !current
+        });
+    }
+});
+
+// Drag & Drop
 let draggedRow = null;
+
+function setDraggable() {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        row.setAttribute('draggable', 'true');
+    });
+}
 
 tbody.addEventListener('dragstart', (e) => {
     if (e.target.tagName === 'TR') {
@@ -80,57 +140,12 @@ tbody.addEventListener('dragover', (e) => {
     }
 });
 
-tbody.addEventListener('dragend', () => {
-    draggedRow = null;
-    updateRowNumbers();
-});
-
-// Nummerierung nach Sortieren aktualisieren
-function updateRowNumbers() {
+tbody.addEventListener('drop', async () => {
     const rows = tbody.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-        row.querySelector('td').textContent = index + 1;
+    rows.forEach(async (row, index) => {
+        const id = row.dataset.id;
+        await updateDoc(doc(db, "songs", id), { order: index });
     });
-}
-
-// Alle Zeilen draggable machen
-const rows = tbody.querySelectorAll('tr');
-rows.forEach(row => row.setAttribute('draggable', 'true'));
-</script>
-
-<script>
-// Songs in das tbody einfügen
-const songs = [
-    {title: "Don't Change", bpm: 164},
-    {title: "Ready to Start", bpm: 190},
-    {title: "Cities in Dust", bpm: 120},
-    {title: "Hungry Like the Wolf", bpm: 128},
-    {title: "The Safety Dance", bpm: 102},
-    {title: "Early Morning Wake Up Call", bpm: 166},
-    {title: "A Forest", bpm: 163},
-    {title: "I Ran (So Far Away)", bpm: 145.5},
-    {title: "Enola Gay", bpm: 143},
-    {title: "You Spin Me Round (Like a Record)", bpm: 128},
-    {title: "You Keep Me Hangin' On", bpm: 132},
-    {title: "Touch Me (I Want Your Body)", bpm: 121}
-];
-
-const tbodyElement = document.querySelector('#setlist tbody');
-
-songs.forEach((song, index) => {
-    const row = document.createElement('tr');
-    row.setAttribute('draggable', 'true');
-    row.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${song.title}</td>
-        <td>${song.bpm}</td>
-        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-        <td class="status" onclick="toggleStatus(this)">&#10060;</td>
-    `;
-    tbodyElement.appendChild(row);
 });
 </script>
 
