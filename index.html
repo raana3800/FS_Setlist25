@@ -191,9 +191,12 @@
     const songsRef = ref(db, 'songs');
     const orderRef = ref(db, 'order');
 
-    onValue(orderRef, orderSnap => {
+    onValue(orderRef, async orderSnap => {
       const order = orderSnap.val();
-      if (!order) return;
+      if (!order) {
+        await initializeSongs();
+        return;
+      }
       onValue(songsRef, songsSnap => {
         const songs = songsSnap.val();
         if (!songs) return;
