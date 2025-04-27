@@ -122,12 +122,20 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
-    body { background-color: #2e4d2c; font-family: 'Patrick Hand', cursive; color: #fff; padding: 10px 20px 20px 20px; margin: 0; text-align: center; }
+    body {
+      background: url('https://images.unsplash.com/photo-1618221380143-d92955a47f5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Patrick Hand', cursive;
+      color: #fff;
+      padding: 10px 20px 20px 20px;
+      margin: 0;
+      text-align: center;
+    }
     img.logo { max-width: 250px; margin-top: 5px; margin-bottom: 5px; }
     h1 { font-size: 2.5rem; margin-top: 5px; margin-bottom: 10px; color: #fdfdfd; text-shadow: 1px 1px 2px #000; }
     .banner { background-color: #4CAF50; color: white; padding: 10px; margin-bottom: 15px; border-radius: 5px; display: none; }
     button { margin-top: 20px; padding: 10px 20px; font-size: 1rem; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: transparent; clear: both; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: rgba(0, 0, 0, 0.4); clear: both; }
     th, td { border: 1px solid #ffffff88; padding: 10px; text-align: center; font-size: 1rem; }
     .status { cursor: pointer; font-size: 1.5em; }
     .green { color: #00ff00; }
@@ -137,7 +145,7 @@
     .drag-handle.active { transform: scale(1.5); color: #ffc107; }
     input.bpm-input { width: 60px; padding: 5px; font-size: 1rem; text-align: center; transition: background-color 0.3s ease; }
     input.bpm-input.highlight { background-color: #8bc34a; }
-    thead th { font-size: 1.3rem; background-color: #3a5f39; }
+    thead th { font-size: 1.3rem; background-color: rgba(0, 0, 0, 0.6); }
     tr.draggable { cursor: default; }
     @media (max-width: 768px) { th, td { font-size: 0.9rem; padding: 6px; } h1 { font-size: 2rem; } }
   </style>
