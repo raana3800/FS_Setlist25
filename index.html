@@ -3,8 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Band-Setlist '25</title>
+  <title>Setlist '25</title>
+
+  <style>
+    body {
+      background-color: #2e4d2c;
+      font-family: 'Arial Black', sans-serif;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    img.logo {
+      max-width: 250px;
+      margin: 10px 0;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: rgba(0,0,0,0.3);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    .drag-handle {
+      cursor: grab;
+    }
+    .status {
+      cursor: pointer;
+      font-size: 2rem;
+      text-align: center;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .green {
+      color: limegreen;
+      background-color: rgba(0, 255, 0, 0.1);
+    }
+    .red {
+      color: red;
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+    input.bpm-input {
+      width: 60px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .highlight {
+      background-color: #8bc34a;
+      transition: background-color 0.5s;
+    }
+  </style>
+
+</head>
+<body>
+
+  <img src="fs_logo300.png" alt="FS Logo" class="logo">
+  <h1>Setlist '25</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>≡</th>
+        <th>#</th>
+        <th>Songtitel</th>
+        <th>🥁</th>
+        <th>🎹</th>
+        <th>🎸</th>
+        <th>𝄢</th>
+        <th>🎤</th>
+        <th>BPM</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <button id="resetButton">Setlist zurücksetzen</button>
+
   <script type="module">
+    // HIER dein kompletter JavaScript-Code aus deinem letzten Stand
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
     import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
@@ -139,68 +231,12 @@
           await remove(ref(db, 'songs'));
           await remove(ref(db, 'order'));
           await initializeSongs();
-          location.reload();
+          setTimeout(() => location.reload(), 1000);
         }
       });
       listenToDatabase();
     });
   </script>
-  <style>
-    body {
-      background-color: #2e4d2c;
-      font-family: 'Arial Black', sans-serif;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-    img.logo { max-width: 250px; margin: 10px 0; }
-    h1 { font-size: 2.5rem; margin-bottom: 20px; }
-    table { width: 100%; margin-top: 20px; border-collapse: collapse; background: rgba(0,0,0,0.3); }
-    th, td { border: 1px solid #ccc; padding: 10px; }
-    .drag-handle { cursor: grab; }
-    .status {
-      cursor: pointer;
-      font-size: 2rem;
-      text-align: center;
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    .green {
-      color: limegreen;
-      background-color: rgba(0, 255, 0, 0.1);
-    }
-    .red {
-      color: red;
-      background-color: rgba(255, 0, 0, 0.1);
-    }
-    .clicked {
-      transform: scale(1.4);
-    }
-    input.bpm-input { width: 60px; }
-    button { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    .highlight { background-color: #8bc34a; transition: background-color 0.5s; }
-  </style>
-</head>
-<body>
-  <img src="fs_logo300.png" alt="FS Logo" class="logo">
-  <h1>Setlist '25</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>≡</th>
-        <th>#</th>
-        <th>Songtitel</th>
-        <th>🥁</th>
-        <th>🎹</th>
-        <th>🎸</th>
-        <th>𝄢</th>
-        <th>🎤</th>
-        <th>BPM</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-  <button id="resetButton">Setlist zurücksetzen</button>
+
 </body>
 </html>
