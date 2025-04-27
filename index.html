@@ -1,6 +1,15 @@
 function renderSongs(songList) {
   const tableBody = document.getElementById('tableBody');
   tableBody.innerHTML = '';
+
+  const clickSounds = [
+    new Audio('https://cdn.pixabay.com/download/audio/2022/03/26/audio_593b28b1d7.mp3?filename=game-notification-132514.mp3'),
+    new Audio('https://cdn.pixabay.com/download/audio/2021/09/01/audio_cdd7e7605e.mp3?filename=menu-click-110999.mp3'),
+    new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_a7e5fc4f97.mp3?filename=quick-click-124763.mp3')
+  ];
+
+  const successSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e1b9217e2.mp3?filename=success-1-6297.mp3');
+
   songList.forEach((song, index) => {
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -28,6 +37,10 @@ function renderSongs(songList) {
 
   document.querySelectorAll('.status').forEach(status => {
     status.addEventListener('click', () => {
+      const sound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+      sound.currentTime = 0;
+      sound.play();
+
       status.classList.add('clicked');
       setTimeout(() => status.classList.remove('clicked'), 300);
 
@@ -39,6 +52,14 @@ function renderSongs(songList) {
         status.classList.remove('green');
         status.classList.add('red');
         status.innerText = '✗';
+      }
+
+      const row = status.closest('tr');
+      const statuses = row.querySelectorAll('.status');
+      const allGreen = Array.from(statuses).every(s => s.classList.contains('green'));
+      if (allGreen) {
+        successSound.currentTime = 0;
+        successSound.play();
       }
     });
   });
