@@ -81,66 +81,106 @@
     <tbody id="tableBody"></tbody>
   </table>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script>
-  const songs = [
-    { title: "Don't Change", bpm: 164 },
-    { title: "Ready to Start", bpm: 190 },
-    { title: "Cities in Dust", bpm: 120 },
-    { title: "Hungry Like the Wolf", bpm: 128 },
-    { title: "The Safety Dance", bpm: 102 },
-    { title: "Early Morning Wake Up Call", bpm: 166 },
-    { title: "A Forest", bpm: 153 },
-    { title: "I Ran (So Far Away)", bpm: 145.5 },
-    { title: "Enola Gay", bpm: 143 },
-    { title: "You Spin Me 'Round (Like a Record)", bpm: 128 },
-    { title: "You Keep Me Hangin' On", bpm: 132 },
-    { title: "Touch Me (I Want Your Body)", bpm: 121 }
-  ];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
 
-  const tableBody = document.getElementById('tableBody');
+const firebaseConfig = {
+  apiKey: "AIzaSyAJ0oszgQj1sJFABt4R4OEos3629dmS5RU",
+  authDomain: "fssetlist.firebaseapp.com",
+  databaseURL: "https://fssetlist-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fssetlist",
+  storageBucket: "fssetlist.appspot.com",
+  messagingSenderId: "765650285468",
+  appId: "1:765650285468:web:68d940c531ce1cbcd38e59"
+};
 
-  function renderSongs() {
-    tableBody.innerHTML = '';
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    songs.forEach((song, index) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="drag-handle">≡</td>
-        <td>${index + 1}</td>
-        <td class="song-title">${song.title}</td>
-        <td class="status red">✗</td>
-        <td class="status red">✗</td>
-        <td class="status red">✗</td>
-        <td class="status red">✗</td>
-        <td class="status red">✗</td>
-        <td><input type="number" class="bpm-input" value="${song.bpm}" min="60" max="240"></td>
-      `;
-      tableBody.appendChild(row);
-    });
+const songsData = [
+  { title: "Don't Change", bpm: 164 },
+  { title: "Ready to Start", bpm: 190 },
+  { title: "Cities in Dust", bpm: 120 },
+  { title: "Hungry Like the Wolf", bpm: 128 },
+  { title: "The Safety Dance", bpm: 102 },
+  { title: "Early Morning Wake Up Call", bpm: 166 },
+  { title: "A Forest", bpm: 153 },
+  { title: "I Ran (So Far Away)", bpm: 145.5 },
+  { title: "Enola Gay", bpm: 143 },
+  { title: "You Spin Me 'Round (Like a Record)", bpm: 128 },
+  { title: "You Keep Me Hangin' On", bpm: 132 },
+  { title: "Touch Me (I Want Your Body)", bpm: 121 }
+];
 
-    new Sortable(tableBody, {
-      handle: '.drag-handle',
-      animation: 150
-    });
+const instruments = ["drums", "keys", "guitar", "bass", "vocals"];
 
-    document.querySelectorAll('.status').forEach(status => {
-      status.addEventListener('click', () => {
-        status.classList.toggle('green');
-        status.classList.toggle('red');
-        status.innerText = status.classList.contains('green') ? '✓' : '✗';
+async function initializeSongs() {
+  const songsRef = ref(db, "songs");
+  const songEntries = {};
+
+  songsData.forEach((song, index) => {
+    const id = `s${index}`;
+    songEntries[id] = {
+      title: song.title,
+      bpm: song.bpm,
+      drums: false,
+      keys: false,
+      guitar: false,
+      bass: false,
+      vocals: false
+    };
+  });
+
+  await set(songsRef, songEntries);
+}
+
+function renderSongs(songs) {
+  const tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML = "";
+
+  Object.entries(songs).forEach(([id, song], index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="drag-handle">≡</td>
+      <td>${index + 1}</td>
+      <td>${song.title}</td>
+      ${instruments.map(inst => `
+        <td class="status ${song[inst] ? 'green' : 'red'}" 
+            data-song="${id}" 
+            data-instrument="${inst}">
+          ${song[inst] ? '✓' : '✗'}
+        </td>
+      `).join('')}
+      <td><input type="number" class="bpm-input" value="${song.bpm}" min="60" max="240"></td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  new Sortable(tableBody, { handle: '.drag-handle', animation: 150 });
+
+  document.querySelectorAll('.status').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const songId = cell.dataset.song;
+      const instrument = cell.dataset.instrument;
+      const isGreen = cell.classList.contains('green');
+      update(ref(db, `songs/${songId}`), {
+        [instrument]: !isGreen
       });
     });
+  });
+}
 
-    document.querySelectorAll('.bpm-input').forEach(input => {
-      input.addEventListener('change', () => {
-        input.classList.add('highlight');
-        setTimeout(() => input.classList.remove('highlight'), 600);
-      });
-    });
+const songsRef = ref(db, "songs");
+onValue(songsRef, snapshot => {
+  const songs = snapshot.val();
+  if (!songs) {
+    initializeSongs();
+    return;
   }
-
-  renderSongs();
+  renderSongs(songs);
+});
 </script>
 
 </body>
