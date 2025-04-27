@@ -52,6 +52,58 @@
 </table>
 
 <script type="module">
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
+    authDomain: "fssetlist2025.firebaseapp.com",
+    projectId: "fssetlist2025",
+    storageBucket: "fssetlist2025.appspot.com",
+    messagingSenderId: "489478918968",
+    appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const songs = [
+    { title: "Don't Change", bpm: 164 },
+    { title: "Ready to Start", bpm: 190 },
+    { title: "Cities in Dust", bpm: 120 },
+    { title: "Hungry Like the Wolf", bpm: 128 },
+    { title: "The Safety Dance", bpm: 102 },
+    { title: "Early Morning Wake Up Call", bpm: 166 },
+    { title: "A Forest", bpm: 163 },
+    { title: "I Ran (So Far Away)", bpm: 145.5 },
+    { title: "Enola Gay", bpm: 143 },
+    { title: "You Spin Me Round (Like a Record)", bpm: 128 },
+    { title: "You Keep Me Hangin' On", bpm: 132 },
+    { title: "Touch Me (I Want Your Body)", bpm: 121 }
+];
+
+async function importSongs() {
+    for (let i = 0; i < songs.length; i++) {
+        const song = songs[i];
+        await addDoc(collection(db, "songs"), {
+            title: song.title,
+            bpm: song.bpm,
+            order: i,
+            drums: false,
+            keyboard: false,
+            guitar: false,
+            bass: false,
+            vocals: false
+        });
+        console.log(`Song hinzugefügt: ${song.title}`);
+    }
+    console.log("Alle Songs wurden erfolgreich importiert!");
+}
+
+importSongs();
+</script>
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
