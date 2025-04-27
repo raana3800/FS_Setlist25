@@ -50,18 +50,7 @@
     }
     input.bpm-input {
       width: 60px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
+      text-align: center;
     }
     .highlight {
       background-color: #8bc34a;
@@ -73,7 +62,7 @@
 <body>
 
   <img src="fs_logo300.png" alt="FS Logo" class="logo">
-  <h1>Setlist 2025</h1>
+  <h1>Setlist '25</h1>
 
   <table>
     <thead>
@@ -92,62 +81,29 @@
     <tbody id="tableBody"></tbody>
   </table>
 
-  <button id="resetButton">Setlist zurücksetzen</button>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+  const songs = [
+    { title: "Don't Change", bpm: 164 },
+    { title: "Ready to Start", bpm: 190 },
+    { title: "Cities in Dust", bpm: 120 },
+    { title: "Hungry Like the Wolf", bpm: 128 },
+    { title: "The Safety Dance", bpm: 102 },
+    { title: "Early Morning Wake Up Call", bpm: 166 },
+    { title: "A Forest", bpm: 153 },
+    { title: "I Ran (So Far Away)", bpm: 145.5 },
+    { title: "Enola Gay", bpm: 143 },
+    { title: "You Spin Me 'Round (Like a Record)", bpm: 128 },
+    { title: "You Keep Me Hangin' On", bpm: 132 },
+    { title: "Touch Me (I Want Your Body)", bpm: 121 }
+  ];
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
-  import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js";
+  const tableBody = document.getElementById('tableBody');
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAJ0oszgQj1sJFABt4R4OEos3629dmS5RU",
-    authDomain: "fssetlist.firebaseapp.com",
-    databaseURL: "https://fssetlist-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "fssetlist",
-    storageBucket: "fssetlist.appspot.com",
-    messagingSenderId: "765650285468",
-    appId: "1:765650285468:web:68d940c531ce1cbcd38e59"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  async function initializeSongs() {
-    const defaultSongs = [
-      { title: "Don't Change", bpm: 164 },
-      { title: "Ready to Start", bpm: 190 },
-      { title: "Cities in Dust", bpm: 120 },
-      { title: "Hungry Like the Wolf", bpm: 128 },
-      { title: "The Safety Dance", bpm: 102 },
-      { title: "Early Morning Wake Up Call", bpm: 166 },
-      { title: "A Forest", bpm: 153 },
-      { title: "I Ran (So Far Away)", bpm: 145.5 },
-      { title: "Enola Gay", bpm: 143 },
-      { title: "You Spin Me Round (Like a Record)", bpm: 128 },
-      { title: "You Keep Me Hangin' On", bpm: 132 },
-      { title: "Touch Me (I Want Your Body)", bpm: 121 }
-    ];
-
-    const songsRef = ref(db, 'songs');
-    const orderRef = ref(db, 'order');
-    const songEntries = {};
-    const order = [];
-
-    defaultSongs.forEach((song, index) => {
-      const id = `s${index}`;
-      songEntries[id] = song;
-      order.push(id);
-    });
-
-    await set(songsRef, songEntries);
-    await set(orderRef, order);
-  }
-
-  function renderSongs(songList) {
-    const tableBody = document.getElementById('tableBody');
+  function renderSongs() {
     tableBody.innerHTML = '';
 
-    songList.forEach((song, index) => {
+    songs.forEach((song, index) => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td class="drag-handle">≡</td>
@@ -163,7 +119,18 @@
       tableBody.appendChild(row);
     });
 
-    new Sortable(tableBody, { handle: '.drag-handle', animation: 150 });
+    new Sortable(tableBody, {
+      handle: '.drag-handle',
+      animation: 150
+    });
+
+    document.querySelectorAll('.status').forEach(status => {
+      status.addEventListener('click', () => {
+        status.classList.toggle('green');
+        status.classList.toggle('red');
+        status.innerText = status.classList.contains('green') ? '✓' : '✗';
+      });
+    });
 
     document.querySelectorAll('.bpm-input').forEach(input => {
       input.addEventListener('change', () => {
@@ -171,53 +138,9 @@
         setTimeout(() => input.classList.remove('highlight'), 600);
       });
     });
-
-    document.querySelectorAll('.status').forEach(status => {
-      status.addEventListener('click', () => {
-        if (status.classList.contains('red')) {
-          status.classList.remove('red');
-          status.classList.add('green');
-          status.innerText = '✓';
-        } else {
-          status.classList.remove('green');
-          status.classList.add('red');
-          status.innerText = '✗';
-        }
-      });
-    });
   }
 
-  function listenToDatabase() {
-    const songsRef = ref(db, 'songs');
-    const orderRef = ref(db, 'order');
-
-    onValue(orderRef, async orderSnap => {
-      const order = orderSnap.val();
-      if (!order) {
-        await initializeSongs();
-        return;
-      }
-      onValue(songsRef, songsSnap => {
-        const songs = songsSnap.val();
-        if (!songs) return;
-        const songList = order.map(id => ({ id, title: songs[id].title, bpm: songs[id].bpm }));
-        renderSongs(songList);
-      });
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('resetButton').addEventListener('click', async () => {
-      if (confirm('Willst du die Setlist wirklich komplett zurücksetzen?')) {
-        await remove(ref(db, 'songs'));
-        await remove(ref(db, 'order'));
-        await initializeSongs();
-        setTimeout(() => location.reload(), 1000);
-      }
-    });
-    listenToDatabase();
-  });
-
+  renderSongs();
 </script>
 
 </body>
