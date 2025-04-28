@@ -59,20 +59,11 @@
       text-align: center;
     }
     tbody tr {
-      cursor: move;
-      transition: transform 0.3s ease-out, opacity 0.2s ease-out;
+      transition: transform 0.2s ease;
+      position: relative;
     }
-    tr.dragging {
+    .dragging {
       opacity: 0.5;
-      transform: scale(1.03); /* kleiner Hüpfer beim Ziehen */
-    }
-    tr.dropped {
-      animation: drop-bounce 0.3s ease;
-    }
-    @keyframes drop-bounce {
-      0% { transform: scale(1.03); }
-      50% { transform: scale(0.97); }
-      100% { transform: scale(1); }
     }
 
     /* Mobile Optimierung */
@@ -123,7 +114,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Songs kommen hier -->
+      <!-- Songs werden hier geladen -->
     </tbody>
   </table>
 </div>
@@ -202,8 +193,7 @@ function setDraggable() {
     row.addEventListener('dragend', () => {
       if (draggedRow) {
         draggedRow.classList.remove('dragging');
-        draggedRow.classList.add('dropped');
-        setTimeout(() => draggedRow.classList.remove('dropped'), 300);
+        resetTransform();
         draggedRow = null;
       }
     });
@@ -213,22 +203,46 @@ function setDraggable() {
 tbody.addEventListener('dragover', (e) => {
   e.preventDefault();
   const targetRow = e.target.closest('tr');
-  if (targetRow && draggedRow && targetRow !== draggedRow) {
-    const rect = targetRow.getBoundingClientRect();
-    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-    tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+  if (!targetRow || targetRow === draggedRow) return;
+
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const draggedIndex = rows.indexOf(draggedRow);
+  const targetIndex = rows.indexOf(targetRow);
+
+  if (draggedIndex < targetIndex) {
+    targetRow.style.transform = "translateY(-100%)";
+  } else {
+    targetRow.style.transform = "translateY(100%)";
   }
 });
 
-tbody.addEventListener('drop', () => {
-  if (draggedRow) {
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-      const id = row.dataset.id;
-      update(ref(db, `songs/${id}`), { order: index });
-    });
+tbody.addEventListener('dragleave', (e) => {
+  const targetRow = e.target.closest('tr');
+  if (targetRow) {
+    targetRow.style.transform = "";
   }
 });
+
+tbody.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const targetRow = e.target.closest('tr');
+  if (!targetRow || targetRow === draggedRow) return;
+
+  tbody.insertBefore(draggedRow, targetRow.nextSibling);
+  resetTransform();
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const id = row.dataset.id;
+    update(ref(db, `songs/${id}`), { order: index });
+  });
+});
+
+function resetTransform() {
+  tbody.querySelectorAll('tr').forEach(row => {
+    row.style.transform = "";
+  });
+}
 
 // Status toggeln
 tbody.addEventListener('click', (e) => {
