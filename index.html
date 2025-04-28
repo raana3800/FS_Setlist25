@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Setlist '25 test</title>
+  <title>Setlist '25</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
 
@@ -163,11 +163,11 @@ onValue(songsRef, (snapshot) => {
       <td class="handle">≡</td>
       <td class="song-title">${song.title}</td>
       <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
-      <td class="status" data-instrument="drums">${song.drums ? '<span class="check">✓</span>' : '❌'}</td>
-      <td class="status" data-instrument="keyboard">${song.keyboard ? '<span class="check">✓</span>' : '❌'}</td>
-      <td class="status" data-instrument="guitar">${song.guitar ? '<span class="check">✓</span>' : '❌'}</td>
-      <td class="status" data-instrument="bass">${song.bass ? '<span class="check">✓</span>' : '❌'}</td>
-      <td class="status" data-instrument="vocals">${song.vocals ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="drums">${(song.drums === true) ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="keyboard">${(song.keyboard === true) ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="guitar">${(song.guitar === true) ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="bass">${(song.bass === true) ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="vocals">${(song.vocals === true) ? '<span class="check">✓</span>' : '❌'}</td>
     `;
     tbody.appendChild(row);
   });
@@ -175,7 +175,7 @@ onValue(songsRef, (snapshot) => {
   setDraggable();
 });
 
-// Korrektes Status toggeln!
+// Status toggeln
 tbody.addEventListener('click', (e) => {
   if (e.target.closest('.status')) {
     const statusElement = e.target.closest('.status');
