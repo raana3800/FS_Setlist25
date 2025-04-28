@@ -11,6 +11,10 @@
       color: #ffffff;
       text-align: center;
     }
+    img.logo {
+      width: 150px;
+      margin-bottom: 10px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -39,7 +43,7 @@
       white-space: normal;
       word-break: break-word;
       text-align: left;
-      max-width: 200px;
+      min-width: 100px;
     }
     input.bpm-input {
       width: 60px;
@@ -54,21 +58,34 @@
       opacity: 0.5;
     }
     @media (max-width: 768px) {
+      img.logo {
+        width: 100px;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
       table {
         font-size: 0.9em;
       }
+      th, td {
+        padding: 8px;
+      }
       td.song-title {
-        max-width: 120px;
+        min-width: 80px;
         font-size: 0.8em;
       }
       input.bpm-input {
         width: 50px;
+      }
+      td.handle {
+        font-size: 20px;
       }
     }
   </style>
 </head>
 <body>
 
+<img src="fs_logo300.png" alt="Band Logo" class="logo">
 <h1>Setlist '25</h1>
 
 <table id="setlist">
