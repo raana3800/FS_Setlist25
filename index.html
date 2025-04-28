@@ -78,6 +78,9 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.6);
       opacity: 0.9;
     }
+    tr.zugabe {
+      border-top: 4px solid #ffffff;
+    }
     @media (max-width: 768px) {
       img.logo {
         width: 100px;
@@ -167,6 +170,12 @@ onValue(songsRef, (snapshot) => {
     const row = document.createElement('tr');
     row.dataset.id = song.id;
     row.setAttribute('draggable', 'true');
+
+    // Zugabe-Strich nach Song 9 (also bei index 9)
+    if (index === 9) {
+      row.classList.add('zugabe');
+    }
+
     row.innerHTML = `
       <td>${index + 1}</td>
       <td class="handle">≡</td>
