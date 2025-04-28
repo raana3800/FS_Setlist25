@@ -175,9 +175,9 @@ onValue(songsRef, (snapshot) => {
   setDraggable();
 });
 
-// Status toggeln
+// Korrektes Status toggeln!
 tbody.addEventListener('click', (e) => {
-  if (e.target.classList.contains('status') || e.target.closest('.status')) {
+  if (e.target.closest('.status')) {
     const statusElement = e.target.closest('.status');
     const row = statusElement.closest('tr');
     const id = row.dataset.id;
