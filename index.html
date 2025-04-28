@@ -59,13 +59,12 @@
       text-align: center;
     }
     tbody tr {
-      transition: transform 0.2s ease;
-      position: relative;
+      cursor: move;
+      transition: all 0.3s ease; /* Sanfte Bewegung */
     }
-    .dragging {
+    tr.dragging {
       opacity: 0.5;
     }
-
     /* Mobile Optimierung */
     @media (max-width: 768px) {
       body {
@@ -114,7 +113,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Songs werden hier geladen -->
+      <!-- Songs kommen hier -->
     </tbody>
   </table>
 </div>
@@ -193,7 +192,6 @@ function setDraggable() {
     row.addEventListener('dragend', () => {
       if (draggedRow) {
         draggedRow.classList.remove('dragging');
-        resetTransform();
         draggedRow = null;
       }
     });
@@ -203,46 +201,22 @@ function setDraggable() {
 tbody.addEventListener('dragover', (e) => {
   e.preventDefault();
   const targetRow = e.target.closest('tr');
-  if (!targetRow || targetRow === draggedRow) return;
-
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-  const draggedIndex = rows.indexOf(draggedRow);
-  const targetIndex = rows.indexOf(targetRow);
-
-  if (draggedIndex < targetIndex) {
-    targetRow.style.transform = "translateY(-100%)";
-  } else {
-    targetRow.style.transform = "translateY(100%)";
+  if (targetRow && draggedRow && targetRow !== draggedRow) {
+    const rect = targetRow.getBoundingClientRect();
+    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+    tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
   }
 });
 
-tbody.addEventListener('dragleave', (e) => {
-  const targetRow = e.target.closest('tr');
-  if (targetRow) {
-    targetRow.style.transform = "";
+tbody.addEventListener('drop', () => {
+  if (draggedRow) {
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const id = row.dataset.id;
+      update(ref(db, `songs/${id}`), { order: index });
+    });
   }
 });
-
-tbody.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const targetRow = e.target.closest('tr');
-  if (!targetRow || targetRow === draggedRow) return;
-
-  tbody.insertBefore(draggedRow, targetRow.nextSibling);
-  resetTransform();
-
-  const rows = tbody.querySelectorAll('tr');
-  rows.forEach((row, index) => {
-    const id = row.dataset.id;
-    update(ref(db, `songs/${id}`), { order: index });
-  });
-});
-
-function resetTransform() {
-  tbody.querySelectorAll('tr').forEach(row => {
-    row.style.transform = "";
-  });
-}
 
 // Status toggeln
 tbody.addEventListener('click', (e) => {
