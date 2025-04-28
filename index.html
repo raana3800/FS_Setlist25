@@ -59,8 +59,8 @@
       text-align: center;
     }
     tbody tr {
-      cursor: default;
-      transition: transform 0.2s ease, opacity 0.2s ease; /* ANIMATION */
+      cursor: move;
+      transition: transform 0.2s ease, opacity 0.2s ease; /* sanfte Animation */
     }
     tr.dragging {
       opacity: 0.5;
@@ -113,7 +113,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Songs werden hier automatisch geladen -->
+      <!-- Songs werden hier geladen -->
     </tbody>
   </table>
 </div>
@@ -174,12 +174,18 @@ function setDraggable() {
 
   rows.forEach(row => {
     row.addEventListener('dragstart', (e) => {
-      if (e.target.classList.contains('handle')) {
-        draggedRow = row;
-        setTimeout(() => row.classList.add('dragging'), 0);
-      } else {
+      // Nur Drag erlauben, wenn von der Handle-Spalte gestartet wird
+      if (!e.target.classList.contains('handle')) {
         e.preventDefault();
+        return;
       }
+      draggedRow = row;
+      row.classList.add('dragging');
+    });
+
+    row.addEventListener('dragend', () => {
+      draggedRow?.classList.remove('dragging');
+      draggedRow = null;
     });
   });
 }
@@ -187,7 +193,7 @@ function setDraggable() {
 tbody.addEventListener('dragover', (e) => {
   e.preventDefault();
   const targetRow = e.target.closest('tr');
-  if (targetRow && targetRow !== draggedRow) {
+  if (targetRow && draggedRow && targetRow !== draggedRow) {
     const rect = targetRow.getBoundingClientRect();
     const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
     tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
@@ -196,13 +202,11 @@ tbody.addEventListener('dragover', (e) => {
 
 tbody.addEventListener('drop', () => {
   if (draggedRow) {
-    draggedRow.classList.remove('dragging');
     const rows = tbody.querySelectorAll('tr');
     rows.forEach((row, index) => {
       const id = row.dataset.id;
       update(ref(db, `songs/${id}`), { order: index });
     });
-    draggedRow = null;
   }
 });
 
