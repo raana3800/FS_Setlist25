@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Setlist '25 t</title>
+  <title>Setlist '25</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
 
@@ -39,7 +39,7 @@
     .check {
       color: #00FF00;
       font-family: 'Caveat', 'Comic Sans MS', cursive;
-      font-size: 1.2em; /* kleiner gemacht */
+      font-size: 1.2em;
     }
     td.handle {
       cursor: grab;
@@ -156,8 +156,8 @@ onValue(songsRef, (snapshot) => {
     row.innerHTML = `
       <td>${index + 1}</td>
       <td class="handle">≡</td>
-      <td class="song-title">${song.title}</td>
-      <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
+      <td class="song-title">${song.title || 'Unbenannt'}</td>
+      <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm ?? 120}" data-id="${song.id}"></td>
       <td class="status" data-instrument="drums">${(song.drums === true) ? '<span class="check">✓</span>' : '❌'}</td>
       <td class="status" data-instrument="keyboard">${(song.keyboard === true) ? '<span class="check">✓</span>' : '❌'}</td>
       <td class="status" data-instrument="guitar">${(song.guitar === true) ? '<span class="check">✓</span>' : '❌'}</td>
