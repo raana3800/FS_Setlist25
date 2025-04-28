@@ -60,11 +60,21 @@
     }
     tbody tr {
       cursor: move;
-      transition: transform 0.2s ease, opacity 0.2s ease;
+      transition: transform 0.3s ease-out, opacity 0.2s ease-out;
     }
     tr.dragging {
       opacity: 0.5;
+      transform: scale(1.03); /* kleiner Hüpfer beim Ziehen */
     }
+    tr.dropped {
+      animation: drop-bounce 0.3s ease;
+    }
+    @keyframes drop-bounce {
+      0% { transform: scale(1.03); }
+      50% { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+
     /* Mobile Optimierung */
     @media (max-width: 768px) {
       body {
@@ -192,6 +202,8 @@ function setDraggable() {
     row.addEventListener('dragend', () => {
       if (draggedRow) {
         draggedRow.classList.remove('dragging');
+        draggedRow.classList.add('dropped');
+        setTimeout(() => draggedRow.classList.remove('dropped'), 300);
         draggedRow = null;
       }
     });
