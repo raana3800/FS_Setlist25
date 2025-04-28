@@ -1,152 +1,242 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Setlist Übersicht</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ccc;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .status {
-            cursor: pointer;
-            font-size: 24px;
-        }
-        tbody tr {
-            cursor: move;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Setlist '25</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #2b2b2b;
+      color: #ffffff;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #3b3b3b;
+      min-width: 700px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #555;
+    }
+    th {
+      background-color: #444;
+    }
+    .status {
+      cursor: pointer;
+      font-size: 24px;
+    }
+    td.handle {
+      cursor: grab;
+      font-size: 24px;
+      touch-action: none;
+    }
+    td.song-title {
+      white-space: normal;
+      word-break: break-word;
+      text-align: left;
+      max-width: 200px;
+    }
+    input.bpm-input {
+      width: 60px;
+      font-size: 1em;
+      text-align: center;
+    }
+    tbody tr {
+      cursor: move;
+      transition: all 0.3s ease;
+    }
+    tr.dragging {
+      opacity: 0.5;
+    }
+    @media (max-width: 768px) {
+      table {
+        font-size: 0.9em;
+      }
+      td.song-title {
+        max-width: 120px;
+        font-size: 0.8em;
+      }
+      input.bpm-input {
+        width: 50px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<h1>Setlist</h1>
+<h1>Setlist '25</h1>
 
 <table id="setlist">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Song</th>
-            <th>BPM</th>
-            <th>Drums</th>
-            <th>Keyboard</th>
-            <th>Gitarre</th>
-            <th>Bass</th>
-            <th>Gesang</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Hier werden Songs geladen -->
-    </tbody>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>≡</th>
+      <th>Song</th>
+      <th>BPM</th>
+      <th>🥁</th>
+      <th>🎹</th>
+      <th>🎸</th>
+      <th>𝄢</th>
+      <th>🎤</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Songs werden hier geladen -->
+  </tbody>
 </table>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
-    authDomain: "fssetlist2025.firebaseapp.com",
-    projectId: "fssetlist2025",
-    storageBucket: "fssetlist2025.appspot.com",
-    messagingSenderId: "489478918968",
-    appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
+  apiKey: "AIzaSyAnCrb7XcNI9_V-f9VLLESV8cnrBpVjgZE",
+  authDomain: "fssetlist2025.firebaseapp.com",
+  databaseURL: "https://fssetlist2025-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fssetlist2025",
+  storageBucket: "fssetlist2025.appspot.com",
+  messagingSenderId: "489478918968",
+  appId: "1:489478918968:web:aeaee71eb6e9c0aba967cd"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const songsCollection = collection(db, "songs");
+const db = getDatabase(app);
+const songsRef = ref(db, "songs");
 
 const tbody = document.querySelector('#setlist tbody');
 
+let draggedRow = null;
+let allowDrag = false;
+let touchStartY = 0;
+let touchDraggingRow = null;
+
 // Songs live laden
-onSnapshot(songsCollection, (snapshot) => {
-    tbody.innerHTML = '';
-    let songs = [];
-    snapshot.forEach(doc => {
-        songs.push({ id: doc.id, ...doc.data() });
-    });
+onValue(songsRef, (snapshot) => {
+  tbody.innerHTML = '';
+  let songs = [];
+  snapshot.forEach(childSnapshot => {
+    songs.push({ id: childSnapshot.key, ...childSnapshot.val() });
+  });
 
-    songs.sort((a, b) => a.order - b.order);
+  songs.sort((a, b) => a.order - b.order);
 
-    songs.forEach((song, index) => {
-        const row = document.createElement('tr');
-        row.setAttribute('draggable', 'true');
-        row.dataset.id = song.id;
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${song.title}</td>
-            <td>${song.bpm}</td>
-            <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
-            <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
-        `;
-        tbody.appendChild(row);
-    });
+  songs.forEach((song, index) => {
+    const row = document.createElement('tr');
+    row.dataset.id = song.id;
+    row.setAttribute('draggable', 'true');
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td class="handle">≡</td>
+      <td class="song-title">${song.title}</td>
+      <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
+      <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+    `;
+    tbody.appendChild(row);
+  });
 
-    setDraggable();
+  setDraggable();
 });
 
 // Status toggeln
-tbody.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('status')) {
-        const row = e.target.closest('tr');
-        const id = row.dataset.id;
-        const instrument = e.target.dataset.instrument;
-        const current = e.target.innerText === '✅';
+tbody.addEventListener('click', (e) => {
+  if (e.target.classList.contains('status')) {
+    const row = e.target.closest('tr');
+    const id = row.dataset.id;
+    const instrument = e.target.dataset.instrument;
+    const current = e.target.innerText === '✅';
+    update(ref(db, `songs/${id}`), { [instrument]: !current });
+  }
+});
 
-        await updateDoc(doc(db, "songs", id), {
-            [instrument]: !current
-        });
+// BPM ändern
+tbody.addEventListener('change', (e) => {
+  if (e.target.classList.contains('bpm-input')) {
+    const newBpm = parseFloat(e.target.value);
+    const id = e.target.dataset.id;
+    if (newBpm >= 60 && newBpm <= 240) {
+      update(ref(db, `songs/${id}`), { bpm: newBpm });
+    } else {
+      alert('BPM muss zwischen 60 und 240 liegen!');
+      e.target.value = 120;
     }
+  }
 });
 
 // Drag & Drop
-let draggedRow = null;
-
 function setDraggable() {
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach(row => {
-        row.setAttribute('draggable', 'true');
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(row => {
+    row.addEventListener('mousedown', (e) => {
+      allowDrag = e.target.classList.contains('handle');
     });
+    row.querySelector('.handle')?.addEventListener('touchstart', (e) => {
+      touchDraggingRow = row;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    row.addEventListener('touchmove', (e) => {
+      if (!touchDraggingRow) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - touchStartY;
+      const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY)?.closest('tr');
+      if (target && target !== touchDraggingRow) {
+        tbody.insertBefore(touchDraggingRow, deltaY > 0 ? target.nextSibling : target);
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    row.addEventListener('touchend', () => {
+      if (touchDraggingRow) {
+        updateOrder();
+        touchDraggingRow = null;
+      }
+    });
+  });
 }
 
 tbody.addEventListener('dragstart', (e) => {
-    if (e.target.tagName === 'TR') {
-        draggedRow = e.target;
-    }
+  if (!allowDrag) {
+    e.preventDefault();
+    return;
+  }
+  draggedRow = e.target.closest('tr');
+  draggedRow.classList.add('dragging');
 });
 
 tbody.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    const targetRow = e.target.closest('tr');
-    if (targetRow && targetRow !== draggedRow) {
-        const rect = targetRow.getBoundingClientRect();
-        const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-        tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
-    }
+  e.preventDefault();
+  const targetRow = e.target.closest('tr');
+  if (targetRow && draggedRow && targetRow !== draggedRow) {
+    const rect = targetRow.getBoundingClientRect();
+    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+    tbody.insertBefore(draggedRow, next && targetRow.nextSibling || targetRow);
+  }
 });
 
-tbody.addEventListener('drop', async () => {
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach(async (row, index) => {
-        const id = row.dataset.id;
-        await updateDoc(doc(db, "songs", id), { order: index });
-    });
+tbody.addEventListener('drop', () => {
+  if (draggedRow) {
+    updateOrder();
+    draggedRow.classList.remove('dragging');
+    draggedRow = null;
+  }
 });
+
+function updateOrder() {
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const id = row.dataset.id;
+    update(ref(db, `songs/${id}`), { order: index });
+  });
+}
 </script>
 
 </body>
