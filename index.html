@@ -60,7 +60,7 @@
     }
     tbody tr {
       cursor: move;
-      transition: transform 0.2s ease, opacity 0.2s ease; /* sanfte Animation */
+      transition: transform 0.2s ease, opacity 0.2s ease; /* Sanfte Animation */
     }
     tr.dragging {
       opacity: 0.5;
@@ -173,8 +173,9 @@ function setDraggable() {
   const rows = tbody.querySelectorAll('tr');
 
   rows.forEach(row => {
+    row.setAttribute('draggable', 'true'); // GANZ WICHTIG
+
     row.addEventListener('dragstart', (e) => {
-      // Nur Drag erlauben, wenn von der Handle-Spalte gestartet wird
       if (!e.target.classList.contains('handle')) {
         e.preventDefault();
         return;
@@ -184,8 +185,10 @@ function setDraggable() {
     });
 
     row.addEventListener('dragend', () => {
-      draggedRow?.classList.remove('dragging');
-      draggedRow = null;
+      if (draggedRow) {
+        draggedRow.classList.remove('dragging');
+        draggedRow = null;
+      }
     });
   });
 }
