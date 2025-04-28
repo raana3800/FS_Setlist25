@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Setlist '25</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
+
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
@@ -33,6 +35,11 @@
     .status {
       cursor: pointer;
       font-size: 24px;
+    }
+    .check {
+      color: #00FF00;
+      font-family: 'Caveat', 'Comic Sans MS', cursive;
+      font-size: 1.8em;
     }
     td.handle {
       cursor: grab;
@@ -151,11 +158,11 @@ onValue(songsRef, (snapshot) => {
       <td class="handle">≡</td>
       <td class="song-title">${song.title}</td>
       <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm}" data-id="${song.id}"></td>
-      <td class="status" data-instrument="drums">${song.drums ? '✅' : '❌'}</td>
-      <td class="status" data-instrument="keyboard">${song.keyboard ? '✅' : '❌'}</td>
-      <td class="status" data-instrument="guitar">${song.guitar ? '✅' : '❌'}</td>
-      <td class="status" data-instrument="bass">${song.bass ? '✅' : '❌'}</td>
-      <td class="status" data-instrument="vocals">${song.vocals ? '✅' : '❌'}</td>
+      <td class="status" data-instrument="drums">${song.drums ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="keyboard">${song.keyboard ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="guitar">${song.guitar ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="bass">${song.bass ? '<span class="check">✓</span>' : '❌'}</td>
+      <td class="status" data-instrument="vocals">${song.vocals ? '<span class="check">✓</span>' : '❌'}</td>
     `;
     tbody.appendChild(row);
   });
@@ -165,12 +172,14 @@ onValue(songsRef, (snapshot) => {
 
 // Status toggeln
 tbody.addEventListener('click', (e) => {
-  if (e.target.classList.contains('status')) {
-    const row = e.target.closest('tr');
+  if (e.target.classList.contains('status') || e.target.closest('.status')) {
+    const statusElement = e.target.closest('.status');
+    const row = statusElement.closest('tr');
     const id = row.dataset.id;
-    const instrument = e.target.dataset.instrument;
-    const current = e.target.innerText === '✅';
-    update(ref(db, `songs/${id}`), { [instrument]: !current });
+    const instrument = statusElement.dataset.instrument;
+    const isChecked = statusElement.innerHTML.includes('✓');
+
+    update(ref(db, `songs/${id}`), { [instrument]: !isChecked });
   }
 });
 
