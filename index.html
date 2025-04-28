@@ -60,7 +60,7 @@
     }
     tbody tr {
       cursor: move;
-      transition: transform 0.2s ease, opacity 0.2s ease; /* Sanfte Animation */
+      transition: transform 0.2s ease, opacity 0.2s ease;
     }
     tr.dragging {
       opacity: 0.5;
@@ -113,7 +113,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Songs werden hier geladen -->
+      <!-- Songs kommen hier -->
     </tbody>
   </table>
 </div>
@@ -138,6 +138,7 @@ const songsRef = ref(db, "songs");
 const tbody = document.querySelector('#setlist tbody');
 
 let draggedRow = null;
+let allowDrag = false;
 
 onValue(songsRef, (snapshot) => {
   tbody.innerHTML = '';
@@ -173,10 +174,14 @@ function setDraggable() {
   const rows = tbody.querySelectorAll('tr');
 
   rows.forEach(row => {
-    row.setAttribute('draggable', 'true'); // GANZ WICHTIG
+    row.setAttribute('draggable', 'true');
+
+    row.addEventListener('mousedown', (e) => {
+      allowDrag = e.target.classList.contains('handle');
+    });
 
     row.addEventListener('dragstart', (e) => {
-      if (!e.target.classList.contains('handle')) {
+      if (!allowDrag) {
         e.preventDefault();
         return;
       }
