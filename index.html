@@ -171,7 +171,6 @@ onValue(songsRef, (snapshot) => {
     row.dataset.id = song.id;
     row.setAttribute('draggable', 'true');
 
-    // Zugabe-Strich nach Song 9 (also bei index 9)
     if (index === 9) {
       row.classList.add('zugabe');
     }
@@ -227,9 +226,11 @@ function setDraggable() {
     row.addEventListener('mousedown', (e) => {
       allowDrag = e.target.classList.contains('handle');
     });
+
     row.querySelector('.handle')?.addEventListener('touchstart', (e) => {
       touchDraggingRow = row;
       touchStartY = e.touches[0].clientY;
+      row.classList.add('dragging'); // Animation auf Touchstart
     }, { passive: true });
 
     row.addEventListener('touchmove', (e) => {
@@ -245,6 +246,7 @@ function setDraggable() {
 
     row.addEventListener('touchend', () => {
       if (touchDraggingRow) {
+        touchDraggingRow.classList.remove('dragging'); // Animation beenden
         updateOrder();
         touchDraggingRow = null;
       }
