@@ -14,7 +14,7 @@
       text-align: center;
     }
     img.logo {
-      width: 250px;
+      width: 150px;
       margin-bottom: 10px;
     }
     h1 {
@@ -60,7 +60,7 @@
       text-align: left;
       min-width: 80px;
       max-width: 200px;
-      font-size: 1.9em;
+      font-size: 1.2em;
     }
     input.bpm-input {
       width: 60px;
@@ -105,6 +105,30 @@
         width: 50px;
       }
       td.handle {
+        font-size: 20px;
+      }
+    }
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+      }
+      img.logo, td.handle, input.bpm-input {
+        display: none;
+      }
+      table {
+        background: none;
+        box-shadow: none;
+      }
+      th, td {
+        border: 1px solid #000000;
+        padding: 10px;
+      }
+      h1 {
+        font-size: 2em;
+        margin-bottom: 5px;
+      }
+      .status {
         font-size: 20px;
       }
     }
@@ -182,7 +206,7 @@ onValue(songsRef, (snapshot) => {
       <td>${index + 1}</td>
       <td class="handle">≡</td>
       <td class="song-title">${song.title || 'Unbenannt'}</td>
-      <td><input type="number" class="bpm-input" min="60" max="240" value="${song.bpm ?? 120}" data-id="${song.id}"></td>
+      <td><span>${song.bpm ?? 120}</span></td>
       <td class="status" data-instrument="drums">${(song.drums === true) ? '<span class="check">✓</span>' : '❌'}</td>
       <td class="status" data-instrument="keyboard">${(song.keyboard === true) ? '<span class="check">✓</span>' : '❌'}</td>
       <td class="status" data-instrument="guitar">${(song.guitar === true) ? '<span class="check">✓</span>' : '❌'}</td>
@@ -205,20 +229,6 @@ tbody.addEventListener('click', (e) => {
     const isChecked = statusElement.innerHTML.includes('✓');
 
     update(ref(db, `songs/${id}`), { [instrument]: !isChecked });
-  }
-});
-
-// BPM ändern
-tbody.addEventListener('change', (e) => {
-  if (e.target.classList.contains('bpm-input')) {
-    const newBpm = parseFloat(e.target.value);
-    const id = e.target.dataset.id;
-    if (newBpm >= 60 && newBpm <= 240) {
-      update(ref(db, `songs/${id}`), { bpm: newBpm });
-    } else {
-      alert('BPM muss zwischen 60 und 240 liegen!');
-      e.target.value = 120;
-    }
   }
 });
 
